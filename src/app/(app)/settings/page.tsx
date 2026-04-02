@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
+import { GoalPill } from "@/components/app/goal-pill";
 import { cn } from "@/lib/utils";
+import { VOCABOOT_SETTINGS_INTRO } from "@/lib/product";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
 import { Monitor, Moon, Settings2, Sun } from "lucide-react";
 
@@ -35,9 +37,15 @@ export default function SettingsPage() {
   return (
     <Screen
       title="設定"
-      subtitle="表示・復習の間隔・テーマ。"
+      subtitle="表示・復習の間隔 · TOEIC 800点ライン向けの調整"
       icon={<Settings2 className="h-5 w-5" />}
     >
+      <div className="space-y-2">
+        <GoalPill />
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {VOCABOOT_SETTINGS_INTRO}
+        </p>
+      </div>
       <Card className="rounded-3xl border bg-card shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">外観</CardTitle>

@@ -6,6 +6,8 @@ import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
+import { GoalPill } from "@/components/app/goal-pill";
+import { VOCABOOT_REVIEW_SUBTITLE } from "@/lib/product";
 import { getHomeStats } from "@/lib/progress";
 import { Clock, RotateCcw, Sparkles } from "lucide-react";
 
@@ -33,12 +35,13 @@ export default function ReviewPage() {
   return (
     <Screen
       title="復習"
-      subtitle="期限が来た語を先に出します。"
+      subtitle={VOCABOOT_REVIEW_SUBTITLE}
       icon={<Clock className="h-5 w-5" />}
     >
+      <GoalPill className="mb-1" />
       <Card className="rounded-3xl border bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">予定</CardTitle>
+          <CardTitle className="text-base font-semibold">いま回す語</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
@@ -58,8 +61,8 @@ export default function ReviewPage() {
           </div>
           <p className="text-xs text-muted-foreground">
             {hasDue
-              ? "セッションでは最大30語までまとめて復習できます。実際に出るのは残り件数に合わせます。"
-              : "いまは期限どおりの語がありません。新規学習で次の復習枠をつくれます。"}
+              ? "800点帯は語彙の抜けが点差に直結します。最大30語までまとめて回せます。"
+              : "期限どおりの語が空です。学習タブから10語進めて、次の復習枠をつくりましょう。"}
           </p>
           {hasDue ? (
             <Link
@@ -83,7 +86,7 @@ export default function ReviewPage() {
               )}
             >
               <Sparkles className="mr-2 h-4 w-4" aria-hidden />
-              ミックス10語で進める
+              リストを10語で進める
             </Link>
           )}
         </CardContent>

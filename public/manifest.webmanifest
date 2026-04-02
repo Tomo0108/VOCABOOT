@@ -1,7 +1,7 @@
 {
   "name": "Vocaboot",
   "short_name": "Vocaboot",
-  "description": "通勤・通学のスキマ時間でTOEIC頻出単語を反復学習。",
+  "description": "TOEIC 800点を見据えた語彙練習。通勤でもオフラインで。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

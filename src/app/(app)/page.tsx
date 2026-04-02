@@ -11,6 +11,8 @@ import {
   type SessionCheckpoint,
 } from "@/lib/session-checkpoint";
 import { AppWordmark } from "@/components/app/wordmark";
+import { GoalPill } from "@/components/app/goal-pill";
+import { VOCABOOT_HOME_LEDE } from "@/lib/product";
 import { ArrowRight, Clock, Play, Sparkles } from "lucide-react";
 
 const HomeHeroBackdrop = dynamic(
@@ -101,8 +103,9 @@ export default function Home() {
         <div className="relative z-10 flex flex-col gap-8 px-5 pb-8 pt-10 sm:px-7 sm:pb-10 sm:pt-12">
           <header className="space-y-3">
             <AppWordmark size="hero" />
-            <p className="max-w-[20rem] text-sm leading-relaxed text-muted-foreground sm:max-w-none sm:text-[0.9375rem]">
-              復習のタイミングが来た語があれば先に案内します。まだなければ、リストを10語ずつ進められます。
+            <GoalPill />
+            <p className="max-w-[24rem] text-sm leading-relaxed text-muted-foreground sm:max-w-none sm:text-[0.9375rem]">
+              {VOCABOOT_HOME_LEDE}
             </p>
           </header>
 
@@ -131,20 +134,20 @@ export default function Home() {
           <div className="space-y-3">
             <div className="space-y-1">
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                スタート
+                今日の一手
               </p>
               <p
                 id="home-primary-cta"
                 className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl"
               >
                 {primaryIsReview
-                  ? `期限どおりの語が ${due} 語あります`
-                  : "いまから始めましょう"}
+                  ? `まず復習 · 期限どおり ${due} 語`
+                  : "まずは10語 · 反復で定着"}
               </p>
               <p className="text-sm text-muted-foreground">
                 {primaryIsReview
-                  ? "先に復習してから、新しい語にも進めます。"
-                  : "リストの続きから、10語ずつ学習できます。"}
+                  ? "抜けを減らしてから、新規の10語に進むのが近道です。"
+                  : "ミックスでリストを進め、出てきた語は自動で復習予定に入ります。"}
               </p>
             </div>
 
@@ -182,7 +185,7 @@ export default function Home() {
                   {!primaryIsReview ? (
                     <Sparkles className="h-5 w-5 opacity-90" aria-hidden />
                   ) : null}
-                  {primaryIsReview ? "あわせて10語" : "10語を始める"}
+                  {primaryIsReview ? "新規10語を足す" : "ミックス10語で始める"}
                 </Link>
               </div>
             </div>
@@ -193,7 +196,7 @@ export default function Home() {
       <div
         className="grid grid-cols-3 gap-2"
         aria-busy={statsLoading}
-        aria-label="学習の概要"
+        aria-label="TOEIC 800点向けの語彙メトリクス"
       >
         <div className="rounded-2xl border border-border/90 bg-card px-3 py-3 text-center shadow-sm ring-1 ring-black/5 dark:ring-white/10">
           <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
