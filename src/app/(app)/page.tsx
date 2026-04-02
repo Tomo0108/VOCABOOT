@@ -91,7 +91,11 @@ export default function Home() {
         aria-labelledby="home-primary-cta"
       >
         <div className="absolute inset-0 min-h-[220px]">
-          <HomeHeroBackdrop />
+          <HomeHeroBackdrop
+            touched={touched ?? 0}
+            total={total ?? 0}
+            statsReady={!statsLoading}
+          />
         </div>
 
         <div className="relative z-10 flex flex-col gap-8 px-5 pb-8 pt-10 sm:px-7 sm:pb-10 sm:pt-12">
