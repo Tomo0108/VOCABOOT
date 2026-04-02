@@ -1,14 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { cn, focusRingHeroGhost, focusRingHeroPrimary, focusRingLink } from "@/lib/utils";
 import { getHomeStats } from "@/lib/progress";
 import {
@@ -17,7 +11,15 @@ import {
   type SessionCheckpoint,
 } from "@/lib/session-checkpoint";
 import { AppWordmark } from "@/components/app/wordmark";
-import { ArrowRight, BookOpen, Clock, Play, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Clock, Play, Sparkles } from "lucide-react";
+
+const HomeHeroBackdrop = dynamic(
+  () =>
+    import("@/components/app/home-hero-backdrop").then(
+      (m) => m.HomeHeroBackdrop
+    ),
+  { ssr: false, loading: () => null }
+);
 
 function StatFigure({
   loading,
@@ -83,95 +85,103 @@ export default function Home() {
   const primaryIsReview = !statsLoading && due != null && due > 0;
 
   return (
-    <div className="space-y-5">
-      <header className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-2">
-          <AppWordmark />
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            復習のタイミングが来た語があれば先に表示されます。まだなければ、リストを10語ずつ進めていけます。
-          </p>
-        </div>
-        <Badge
-          variant="outline"
-          className="shrink-0 rounded-full border-border bg-card px-3 py-1 text-xs font-medium text-foreground shadow-sm"
-        >
-          通勤向け
-        </Badge>
-      </header>
-
-      {resume && resume.wordIds.length > 0 ? (
-        <Link
-          href={`${resume.pathname}${resume.search}`}
-          className={cn(
-            focusRingLink,
-            "flex items-center justify-between gap-3 rounded-2xl border border-primary/35 bg-primary/10 px-4 py-3 text-sm font-medium text-foreground shadow-sm"
-          )}
-        >
-          <span className="flex items-center gap-2">
-            <Play className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-            続きから
-            <span className="font-normal text-muted-foreground">
-              {resume.idx + 1} / {resume.wordIds.length} 語目
-            </span>
-          </span>
-          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-        </Link>
-      ) : null}
-
+    <div className="space-y-6">
       <section
-        className="relative overflow-hidden rounded-3xl bg-neutral-950 px-5 py-6 text-white shadow-lg ring-1 ring-black/20"
+        className="relative min-h-[min(420px,52vh)] overflow-hidden rounded-3xl border border-border/70 bg-card/25 shadow-md ring-1 ring-black/[0.05] dark:border-border/80 dark:bg-card/20 dark:ring-white/[0.07]"
         aria-labelledby="home-primary-cta"
       >
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/25 blur-3xl"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-primary/15 blur-2xl"
-          aria-hidden
-        />
-        <div className="relative">
-          <p
-            id="home-primary-cta"
-            className="text-sm font-medium text-white/85"
-          >
-            {primaryIsReview ? "先に復習しましょう" : "いま始めるなら"}
-          </p>
-          <p className="mt-2 text-lg font-semibold leading-snug tracking-tight">
-            {primaryIsReview
-              ? `期限どおりの語が ${due} 語あります`
-              : "リストの続きから、10語ずつ始められます"}
-          </p>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            {primaryIsReview ? (
-              <Link
-                href={`/study/session?mode=review&n=${reviewN}`}
-                className={cn(
-                  focusRingHeroPrimary,
-                  "inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition-[filter,background-color] sm:w-auto",
-                  "bg-primary text-primary-foreground shadow-md ring-1 ring-black/20 hover:brightness-105 active:brightness-95"
-                )}
-              >
-                <Clock className="h-4 w-4 opacity-90" aria-hidden />
-                復習を続ける
-                <ArrowRight className="h-4 w-4 opacity-80" aria-hidden />
-              </Link>
-            ) : null}
+        <div className="absolute inset-0 min-h-[220px]">
+          <HomeHeroBackdrop />
+        </div>
+
+        <div className="relative z-10 flex flex-col gap-8 px-5 pb-8 pt-10 sm:px-7 sm:pb-10 sm:pt-12">
+          <header className="space-y-3">
+            <AppWordmark size="hero" />
+            <p className="max-w-[20rem] text-sm leading-relaxed text-muted-foreground sm:max-w-none sm:text-[0.9375rem]">
+              復習のタイミングが来た語があれば先に案内します。まだなければ、リストを10語ずつ進められます。
+            </p>
+          </header>
+
+          {resume && resume.wordIds.length > 0 ? (
             <Link
-              href="/study/session?mode=mix&n=10&offset=0"
+              href={`${resume.pathname}${resume.search}`}
               className={cn(
-                primaryIsReview ? focusRingHeroGhost : focusRingHeroPrimary,
-                "inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold transition-colors sm:w-auto",
-                primaryIsReview
-                  ? "border border-white/25 bg-white/10 text-white hover:bg-white/[0.16] active:bg-white/[0.12]"
-                  : "bg-primary text-primary-foreground shadow-md ring-1 ring-black/25 hover:brightness-105 active:brightness-95"
+                focusRingLink,
+                "flex items-center justify-between gap-3 rounded-2xl border border-primary/30 bg-background/70 px-4 py-3.5 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-background/85 dark:border-primary/25 dark:bg-background/45 dark:hover:bg-background/55"
               )}
             >
-              {!primaryIsReview ? (
-                <Sparkles className="h-4 w-4 opacity-90" aria-hidden />
-              ) : null}
-              {primaryIsReview ? "あわせて10語" : "10語を始める"}
+              <span className="flex items-center gap-2">
+                <Play className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+                続きから
+                <span className="font-normal text-muted-foreground">
+                  {resume.idx + 1} / {resume.wordIds.length} 語目
+                </span>
+              </span>
+              <ArrowRight
+                className="h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
             </Link>
+          ) : null}
+
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                スタート
+              </p>
+              <p
+                id="home-primary-cta"
+                className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl"
+              >
+                {primaryIsReview
+                  ? `期限どおりの語が ${due} 語あります`
+                  : "いまから始めましょう"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {primaryIsReview
+                  ? "先に復習してから、新しい語にも進めます。"
+                  : "リストの続きから、10語ずつ学習できます。"}
+              </p>
+            </div>
+
+            <div
+              className={cn(
+                "rounded-2xl border border-border/70 bg-background/60 p-4 shadow-sm backdrop-blur-md",
+                "dark:border-white/[0.08] dark:bg-background/35"
+              )}
+            >
+              <div className="flex flex-col gap-3">
+                {primaryIsReview ? (
+                  <Link
+                    href={`/study/session?mode=review&n=${reviewN}`}
+                    className={cn(
+                      focusRingHeroPrimary,
+                      "inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-5 text-base font-semibold transition-[filter,background-color]",
+                      "bg-primary text-primary-foreground shadow-md ring-1 ring-black/15 hover:brightness-105 active:brightness-95 dark:ring-black/25"
+                    )}
+                  >
+                    <Clock className="h-5 w-5 opacity-90" aria-hidden />
+                    復習を続ける
+                    <ArrowRight className="h-5 w-5 opacity-80" aria-hidden />
+                  </Link>
+                ) : null}
+                <Link
+                  href="/study/session?mode=mix&n=10&offset=0"
+                  className={cn(
+                    primaryIsReview ? focusRingHeroGhost : focusRingHeroPrimary,
+                    "inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-5 text-base font-semibold transition-colors",
+                    primaryIsReview
+                      ? "border border-border/90 bg-background/80 text-foreground shadow-sm hover:bg-background dark:border-white/15 dark:bg-background/50 dark:hover:bg-background/65"
+                      : "bg-primary text-primary-foreground shadow-md ring-1 ring-black/15 hover:brightness-105 active:brightness-95 dark:ring-black/25"
+                  )}
+                >
+                  {!primaryIsReview ? (
+                    <Sparkles className="h-5 w-5 opacity-90" aria-hidden />
+                  ) : null}
+                  {primaryIsReview ? "あわせて10語" : "10語を始める"}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -200,65 +210,6 @@ export default function Home() {
           <StatFigure loading={statsLoading} value={total} />
         </div>
       </div>
-
-      <Card className="gap-0 py-0 overflow-hidden rounded-3xl border border-border/90 bg-card shadow-sm ring-1 ring-black/5 dark:ring-white/10">
-        <CardHeader className="border-b border-border px-4 py-3">
-          <CardTitle
-            id="home-other-routes"
-            className="flex items-center gap-2 text-sm font-semibold text-foreground"
-          >
-            <Zap className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-            ほかの入り口
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <nav
-            className="flex flex-col divide-y divide-border"
-            aria-labelledby="home-other-routes"
-          >
-            <Link
-              href="/study"
-              className={cn(
-                focusRingLink,
-                "flex w-full min-h-12 items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors",
-                "hover:bg-muted/50 active:bg-muted/60"
-              )}
-            >
-              <span className="flex min-w-0 items-center gap-3">
-                <BookOpen
-                  className="h-4 w-4 shrink-0 text-primary"
-                  aria-hidden
-                />
-                <span className="truncate">学習メニュー</span>
-              </span>
-              <ArrowRight
-                className="h-4 w-4 shrink-0 text-muted-foreground"
-                aria-hidden
-              />
-            </Link>
-            <Link
-              href="/review"
-              className={cn(
-                focusRingLink,
-                "flex w-full min-h-12 items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors",
-                "hover:bg-muted/50 active:bg-muted/60"
-              )}
-            >
-              <span className="flex min-w-0 items-center gap-3">
-                <Clock
-                  className="h-4 w-4 shrink-0 text-primary"
-                  aria-hidden
-                />
-                <span className="truncate">復習</span>
-              </span>
-              <ArrowRight
-                className="h-4 w-4 shrink-0 text-muted-foreground"
-                aria-hidden
-              />
-            </Link>
-          </nav>
-        </CardContent>
-      </Card>
     </div>
   );
 }

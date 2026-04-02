@@ -2,13 +2,17 @@ import { cn } from "@/lib/utils";
 
 type AppWordmarkProps = {
   className?: string;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "hero";
 };
 
 /** アプリ名は Vocaboot（語彙 + boot）。ゴールドで後半を強調 */
 export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
   const text =
-    size === "lg" ? "text-2xl sm:text-[1.65rem]" : "text-lg font-semibold";
+    size === "hero"
+      ? "text-[2rem] font-bold leading-[1.05] tracking-tight sm:text-4xl"
+      : size === "lg"
+        ? "text-2xl sm:text-[1.65rem]"
+        : "text-lg font-semibold";
   return (
     <div className={cn("select-none", className)}>
       <p
