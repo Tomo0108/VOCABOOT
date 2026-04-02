@@ -19,7 +19,6 @@ export function Screen({
   icon?: ReactNode;
   right?: ReactNode;
   backHref?: string;
-  /** 指定時は戻るを独自描画（離脱確認など） */
   renderBack?: ReactNode;
   children: ReactNode;
 }) {
@@ -30,8 +29,8 @@ export function Screen({
         href={backHref}
         className={cn(
           focusRingLink,
-          "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card",
-          "text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+          "inline-flex h-10 w-10 items-center justify-center rounded-xl",
+          "text-muted-foreground transition-colors hover:text-foreground active:bg-muted/60"
         )}
         aria-label="戻る"
       >
@@ -41,32 +40,24 @@ export function Screen({
 
   return (
     <div className="space-y-4">
-      <header className="space-y-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              {backControl}
-              <div
-                className={cn(
-                  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-primary shadow-sm"
-                )}
-                aria-hidden
-              >
-                {icon}
-              </div>
-              <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
-                {title}
-              </h1>
-            </div>
-            {subtitle ? (
-              <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-            ) : null}
+      <header className="space-y-1.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-1.5">
+            {backControl}
+            <span className="text-primary" aria-hidden>
+              {icon}
+            </span>
+            <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
+              {title}
+            </h1>
           </div>
           {right ? <div className="shrink-0">{right}</div> : null}
         </div>
+        {subtitle ? (
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        ) : null}
       </header>
       {children}
     </div>
   );
 }
-

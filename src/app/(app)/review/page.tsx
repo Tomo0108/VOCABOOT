@@ -36,7 +36,7 @@ export default function ReviewPage() {
       subtitle="期限が来た語を優先して出します。"
       icon={<Clock className="h-5 w-5" />}
     >
-      <Card className="rounded-3xl border bg-card shadow-sm">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">復習予定</CardTitle>
         </CardHeader>

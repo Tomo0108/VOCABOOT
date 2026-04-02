@@ -6,7 +6,7 @@ export function GoalPill({ className }: { className?: string }) {
   return (
     <p
       className={cn(
-        "inline-flex w-fit max-w-full items-center rounded-full border border-primary/40 bg-primary/12 px-3 py-1.5 text-[11px] font-semibold leading-none tracking-wide text-primary sm:text-xs",
+        "inline-flex w-fit max-w-full items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-semibold leading-none tracking-wide text-primary dark:border-primary/20 dark:bg-primary/8 dark:text-primary/90 sm:text-xs",
         className
       )}
     >

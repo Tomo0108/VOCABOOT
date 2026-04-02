@@ -15,7 +15,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         tabIndex={-1}
         className="outline-none"
       >
-        <div className="mx-auto w-full max-w-md pb-24 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:pl-[max(1.25rem,env(safe-area-inset-left))] sm:pr-[max(1.25rem,env(safe-area-inset-right))]">
+        <div className="mx-auto w-full max-w-md pb-28 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:pl-[max(1.25rem,env(safe-area-inset-left))] sm:pr-[max(1.25rem,env(safe-area-inset-right))]">
           {children}
         </div>
       </main>

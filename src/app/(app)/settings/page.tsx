@@ -38,7 +38,7 @@ export default function SettingsPage() {
       subtitle="表示と復習の間隔を調整できます。"
       icon={<Settings2 className="h-5 w-5" />}
     >
-      <Card className="rounded-3xl border bg-card shadow-sm">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">外観</CardTitle>
         </CardHeader>
@@ -87,7 +87,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl border bg-card shadow-sm">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">学習</CardTitle>
         </CardHeader>

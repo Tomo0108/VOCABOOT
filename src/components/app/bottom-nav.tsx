@@ -17,7 +17,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/90 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto grid max-w-md grid-cols-4 px-2 pb-[env(safe-area-inset-bottom)] pt-2">
+      <div className="mx-auto grid max-w-md grid-cols-4 gap-1 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         {items.map(({ href, label, icon: Icon }) => {
           const active =
             pathname === href || (href !== "/" && pathname?.startsWith(href));
@@ -27,15 +27,15 @@ export function BottomNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-xs",
+                "flex flex-col items-center justify-center gap-1 rounded-xl py-2.5 text-[10px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-xs",
                 active
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground active:bg-muted"
               )}
               aria-current={active ? "page" : undefined}
             >
               <Icon
-                className={cn("h-5 w-5", active ? "text-primary-foreground" : "")}
+                className="h-5 w-5"
                 aria-hidden
               />
               <span className="leading-none">{label}</span>

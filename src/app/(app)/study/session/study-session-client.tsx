@@ -331,7 +331,7 @@ export function StudySessionClient() {
         backHref="/study"
         right={<Badge variant="secondary">{modeLabel}</Badge>}
       >
-        <Card className="rounded-3xl border border-border/80 bg-card shadow-sm ring-1 ring-black/5">
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="py-14 text-center text-sm text-muted-foreground">
             読み込み中…
           </CardContent>
@@ -358,7 +358,7 @@ export function StudySessionClient() {
         backHref="/study"
         right={<Badge variant="secondary">{modeLabel}</Badge>}
       >
-        <Card className="rounded-3xl border border-border/80 bg-card shadow-sm ring-1 ring-black/5">
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="space-y-3 p-6">
             <p className="text-sm text-muted-foreground">{emptyMsg}</p>
             <Link
@@ -395,7 +395,7 @@ export function StudySessionClient() {
         icon={<Check className="h-5 w-5" />}
         backHref="/study"
       >
-        <Card className="rounded-3xl border border-border/80 bg-card shadow-sm ring-1 ring-black/5">
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">次へ</CardTitle>
           </CardHeader>
@@ -498,8 +498,8 @@ export function StudySessionClient() {
             onClick={requestLeaveStudy}
             className={cn(
               focusRingLink,
-              "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card",
-              "text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+              "inline-flex h-10 w-10 items-center justify-center rounded-xl",
+              "text-muted-foreground transition-colors hover:text-foreground active:bg-muted/60"
             )}
             aria-label="戻る"
           >
@@ -508,18 +508,15 @@ export function StudySessionClient() {
         }
         right={<Badge variant="secondary">{modeLabel}</Badge>}
       >
-        <Card className="rounded-3xl border border-border/80 bg-card shadow-sm ring-1 ring-black/5">
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2">
-            <CardTitle className="text-base font-medium text-muted-foreground">
-              進捗
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {Math.min(idx + 1, words.length)} / {words.length}
             </CardTitle>
-            <div className="text-sm tabular-nums text-muted-foreground">
-              {Math.min(idx + 1, words.length)}/{words.length}
-            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent>
           <Progress
             value={percent}
             getAriaValueText={(_formatted, v) => {
@@ -528,16 +525,10 @@ export function StudySessionClient() {
               return `${cur}語目、全${words.length}語、進捗${Math.round(pct)}パーセント`;
             }}
           />
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">残り</span>
-            <span className="font-medium tabular-nums text-foreground">
-              {Math.max(0, words.length - (idx + 1))}語
-            </span>
-          </div>
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl border border-border/80 bg-card shadow-sm ring-1 ring-black/5">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1">
@@ -617,11 +608,11 @@ export function StudySessionClient() {
             )}
           </button>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <Button
               type="button"
               variant="outline"
-              className="h-11 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10"
+              className="h-12 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 active:bg-destructive/15"
               disabled={ratingBusy}
               onClick={() => void goNext("again")}
             >
@@ -630,7 +621,7 @@ export function StudySessionClient() {
             <Button
               type="button"
               variant="outline"
-              className="h-11 rounded-xl"
+              className="h-12 rounded-xl"
               disabled={ratingBusy}
               onClick={() => void goNext("hard")}
             >
@@ -638,7 +629,7 @@ export function StudySessionClient() {
             </Button>
             <Button
               type="button"
-              className="h-11 rounded-xl bg-primary font-medium text-primary-foreground"
+              className="h-12 rounded-xl bg-primary font-medium text-primary-foreground"
               disabled={ratingBusy}
               onClick={() => void goNext("good")}
             >
@@ -647,15 +638,15 @@ export function StudySessionClient() {
             <Button
               type="button"
               variant="secondary"
-              className="h-11 rounded-xl"
+              className="h-12 rounded-xl"
               disabled={ratingBusy}
               onClick={() => void goNext("easy")}
             >
               簡単
             </Button>
           </div>
-          <p className="text-center text-[10px] leading-relaxed text-muted-foreground">
-            キーボード: 1 忘れた · 2 難しい · 3 できた · 4 簡単
+          <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
+            1〜4 キーでも選べます
           </p>
         </CardContent>
       </Card>

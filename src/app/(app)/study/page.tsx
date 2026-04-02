@@ -14,7 +14,7 @@ export default function StudyPage() {
       subtitle="10語ずつ、短いセットで進めます。"
       icon={<BookOpen className="h-5 w-5" />}
     >
-      <Card className="rounded-3xl border bg-card shadow-sm">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden />

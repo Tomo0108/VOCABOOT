@@ -88,7 +88,7 @@ export default function Home() {
   return (
     <div className="space-y-6">
       <section
-        className="relative min-h-[min(420px,52vh)] overflow-hidden rounded-3xl border border-border/70 bg-card/25 shadow-md ring-1 ring-black/[0.05] dark:border-border/80 dark:bg-card/20 dark:ring-white/[0.07]"
+        className="relative min-h-[min(340px,44vh)] overflow-hidden rounded-3xl border border-border/70 bg-card/25 shadow-md ring-1 ring-black/[0.05] dark:border-border/80 dark:bg-card/20 dark:ring-white/[0.07]"
         aria-labelledby="home-primary-cta"
       >
         <div className="absolute inset-0 min-h-[220px]">
@@ -99,7 +99,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 flex flex-col gap-8 px-5 pb-8 pt-10 sm:px-7 sm:pb-10 sm:pt-12">
+        <div className="relative z-10 flex flex-col gap-5 px-5 pb-6 pt-8 sm:px-7 sm:pb-8 sm:pt-10">
           <header className="space-y-2.5">
             <AppWordmark size="hero" />
             <GoalPill />
@@ -184,20 +184,20 @@ export default function Home() {
         aria-busy={statsLoading}
         aria-label="学習状況"
       >
-        <div className="rounded-2xl border border-border/90 bg-card px-3 py-3 text-center shadow-sm ring-1 ring-black/5 dark:ring-white/10">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground">
             復習待ち
           </p>
           <StatFigure loading={statsLoading} value={due} />
         </div>
-        <div className="rounded-2xl border border-border/90 bg-card px-3 py-3 text-center shadow-sm ring-1 ring-black/5 dark:ring-white/10">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground">
             学習済み
           </p>
           <StatFigure loading={statsLoading} value={touched} />
         </div>
-        <div className="rounded-2xl border border-border/90 bg-card px-3 py-3 text-center shadow-sm ring-1 ring-black/5 dark:ring-white/10">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground">
             収録語数
           </p>
           <StatFigure loading={statsLoading} value={total} />
