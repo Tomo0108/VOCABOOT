@@ -6,19 +6,61 @@ import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
-import { getHomeStats } from "@/lib/progress";
+import { getHomeStats, getProgress } from "@/lib/progress";
+import { getAllWords } from "@/lib/vocab";
 import { Clock, RotateCcw, Sparkles } from "lucide-react";
+
+type ScheduleGroup = {
+  label: string;
+  count: number;
+};
+
+function buildScheduleGroups(
+  progress: Record<string, { dueAt: number }>,
+  now: number
+): ScheduleGroup[] {
+  const todayEnd = new Date(now);
+  todayEnd.setHours(23, 59, 59, 999);
+  const todayMs = todayEnd.getTime();
+
+  const tomorrowEnd = new Date(todayMs + 24 * 60 * 60 * 1000);
+  const twoDaysEnd = new Date(todayMs + 2 * 24 * 60 * 60 * 1000);
+  const weekEnd = new Date(todayMs + 7 * 24 * 60 * 60 * 1000);
+
+  const groups = { overdue: 0, today: 0, tomorrow: 0, twoDays: 0, week: 0, later: 0 };
+
+  for (const s of Object.values(progress)) {
+    const due = s.dueAt ?? 0;
+    if (due <= now) groups.overdue++;
+    else if (due <= todayMs) groups.today++;
+    else if (due <= tomorrowEnd.getTime()) groups.tomorrow++;
+    else if (due <= twoDaysEnd.getTime()) groups.twoDays++;
+    else if (due <= weekEnd.getTime()) groups.week++;
+    else groups.later++;
+  }
+
+  const result: ScheduleGroup[] = [];
+  if (groups.overdue > 0) result.push({ label: "期限切れ", count: groups.overdue });
+  if (groups.today > 0) result.push({ label: "今日中", count: groups.today });
+  if (groups.tomorrow > 0) result.push({ label: "明日", count: groups.tomorrow });
+  if (groups.twoDays > 0) result.push({ label: "明後日", count: groups.twoDays });
+  if (groups.week > 0) result.push({ label: "今週中", count: groups.week });
+  if (groups.later > 0) result.push({ label: "それ以降", count: groups.later });
+  return result;
+}
 
 export default function ReviewPage() {
   const [due, setDue] = useState<number | null>(null);
   const [dueLoading, setDueLoading] = useState(true);
+  const [schedule, setSchedule] = useState<ScheduleGroup[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const s = await getHomeStats();
+      const [s, progress] = await Promise.all([getHomeStats(), getProgress()]);
       if (!cancelled) {
         setDue(s.dueCount);
+        setSchedule(buildScheduleGroups(progress, Date.now()));
         setDueLoading(false);
       }
     })();
@@ -42,7 +84,7 @@ export default function ReviewPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">復習待ちの語</span>
+            <span className="text-muted-foreground">いま復習できる語</span>
             <span
               className="font-semibold tabular-nums text-foreground"
               aria-busy={dueLoading}
@@ -88,6 +130,29 @@ export default function ReviewPage() {
           )}
         </CardContent>
       </Card>
+
+      {!dueLoading && schedule.length > 0 ? (
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">スケジュール</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="divide-y divide-border/60">
+              {schedule.map((g) => (
+                <div
+                  key={g.label}
+                  className="flex items-center justify-between py-2.5 text-sm"
+                >
+                  <span className="text-muted-foreground">{g.label}</span>
+                  <span className="font-medium tabular-nums text-foreground">
+                    {g.count} 語
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
     </Screen>
   );
 }

@@ -95,6 +95,7 @@ export function StudySessionClient() {
   const [mixSeedState, setMixSeedState] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<AppPreferences | null>(null);
   const [ratingBusy, setRatingBusy] = useState(false);
+  const [ratingCounts, setRatingCounts] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [leaveOpen, setLeaveOpen] = useState(false);
   const goNextRef = useRef<(r: Rating) => void>(() => {});
   const restoredRef = useRef(false);
@@ -256,6 +257,7 @@ export function StudySessionClient() {
         await rateWord(current.id, rating, {
           compactSchedule: prefs?.compactSchedule ?? false,
         });
+        setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
         setMeaningOpen(false);
         setIdx((v) => v + 1);
       } catch {
@@ -400,9 +402,20 @@ export function StudySessionClient() {
             <CardTitle className="text-base font-semibold">次へ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-4 py-3">
-              <span className="text-muted-foreground">語数</span>
-              <span className="font-medium tabular-nums">{words.length}</span>
+            <div className="grid grid-cols-4 gap-2 text-center">
+              {([
+                { key: "again" as const, label: "忘れた", color: "text-destructive" },
+                { key: "hard" as const, label: "難しい", color: "text-muted-foreground" },
+                { key: "good" as const, label: "できた", color: "text-primary" },
+                { key: "easy" as const, label: "簡単", color: "text-foreground" },
+              ] as const).map(({ key, label, color }) => (
+                <div key={key} className="rounded-xl border border-border/60 bg-background/80 px-2 py-2.5">
+                  <p className={cn("text-lg font-semibold tabular-nums", color)}>
+                    {ratingCounts[key]}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">{label}</p>
+                </div>
+              ))}
             </div>
 
             {mixHasNext ? (

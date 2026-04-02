@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { useHydrated } from "@/lib/use-hydrated";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
 import { cn } from "@/lib/utils";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
-import { Monitor, Moon, Settings2, Sun } from "lucide-react";
+import { exportBackup, importBackup } from "@/lib/backup";
+import { toast } from "sonner";
+import { Download, Monitor, Moon, Settings2, Sun, Upload } from "lucide-react";
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -27,10 +30,40 @@ export default function SettingsPage() {
     };
   }, []);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   async function updatePrefs(patch: Partial<AppPreferences>) {
     const next = await setPreferences(patch);
     setPrefs(next);
   }
+
+  const handleExport = useCallback(async () => {
+    try {
+      const json = await exportBackup();
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vocaboot-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("バックアップをダウンロードしました");
+    } catch {
+      toast.error("エクスポートに失敗しました");
+    }
+  }, []);
+
+  const handleImport = useCallback(async (file: File) => {
+    try {
+      const text = await file.text();
+      const result = await importBackup(text);
+      toast.success(`${result.wordCount} 語の進捗を復元しました`);
+      const p = await getPreferences();
+      setPrefs(p);
+    } catch {
+      toast.error("ファイルを読み込めませんでした。形式を確認してください。");
+    }
+  }, []);
 
   return (
     <Screen
@@ -117,6 +150,45 @@ export default function SettingsPage() {
               onCheckedChange={(checked) => void updatePrefs({ showExample: Boolean(checked) })}
             />
           </div>
+        </CardContent>
+      </Card>
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">データ</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            学習の進捗と設定をファイルに保存・復元できます。端末の移行にも使えます。
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="h-11 flex-1 rounded-xl"
+              onClick={() => void handleExport()}
+            >
+              <Download className="mr-2 h-4 w-4" aria-hidden />
+              エクスポート
+            </Button>
+            <Button
+              variant="outline"
+              className="h-11 flex-1 rounded-xl"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="mr-2 h-4 w-4" aria-hidden />
+              インポート
+            </Button>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImport(file);
+              e.target.value = "";
+            }}
+          />
         </CardContent>
       </Card>
     </Screen>

@@ -179,6 +179,26 @@ export default function Home() {
         </div>
       </section>
 
+      {!statsLoading && touched != null && total != null && total > 0 ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>全体の進捗</span>
+            <span className="font-medium tabular-nums text-foreground">
+              {Math.round((touched / total) * 100)}%
+            </span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-500"
+              style={{ width: `${Math.min(100, (touched / total) * 100)}%` }}
+            />
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            {touched} / {total} 語を学習済み
+          </p>
+        </div>
+      ) : null}
+
       <div
         className="grid grid-cols-3 gap-2"
         aria-busy={statsLoading}
