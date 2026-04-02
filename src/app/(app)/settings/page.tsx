@@ -7,9 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
-import { GoalPill } from "@/components/app/goal-pill";
 import { cn } from "@/lib/utils";
-import { VOCABOOT_SETTINGS_INTRO } from "@/lib/product";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
 import { Monitor, Moon, Settings2, Sun } from "lucide-react";
 
@@ -37,23 +35,14 @@ export default function SettingsPage() {
   return (
     <Screen
       title="設定"
-      subtitle="表示・復習の間隔 · TOEIC 800点ライン向けの調整"
+      subtitle="表示と復習の間隔を調整できます。"
       icon={<Settings2 className="h-5 w-5" />}
     >
-      <div className="space-y-2">
-        <GoalPill />
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          {VOCABOOT_SETTINGS_INTRO}
-        </p>
-      </div>
       <Card className="rounded-3xl border bg-card shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">外観</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">
-            端末の表示設定に合わせる場合は「自動」を選びます。
-          </p>
           {!mounted ? (
             <p className="sr-only">テーマを読み込み中です。</p>
           ) : null}
@@ -92,7 +81,7 @@ export default function SettingsPage() {
           </div>
           {mounted ? (
             <p className="text-[11px] text-muted-foreground">
-              いまの表示: {resolvedTheme === "dark" ? "ダーク" : "ライト"}
+              現在: {resolvedTheme === "dark" ? "ダーク" : "ライト"}
             </p>
           ) : null}
         </CardContent>
@@ -100,14 +89,14 @@ export default function SettingsPage() {
 
       <Card className="rounded-3xl border bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">学習中</CardTitle>
+          <CardTitle className="text-base font-semibold">学習</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-sm font-medium">復習間隔を詰める</div>
+              <div className="text-sm font-medium">復習間隔を短くする</div>
               <div className="text-xs text-muted-foreground">
-                オンにすると次回までの日数がやや短くなります
+                次の復習までの日数をやや短めに設定します
               </div>
             </div>
             <Switch
@@ -119,8 +108,8 @@ export default function SettingsPage() {
           <Separator />
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-sm font-medium">例文を出す</div>
-              <div className="text-xs text-muted-foreground">和訳の下に例文を表示</div>
+              <div className="text-sm font-medium">例文を表示する</div>
+              <div className="text-xs text-muted-foreground">和訳と一緒に例文を出します</div>
             </div>
             <Switch
               checked={prefs?.showExample ?? true}

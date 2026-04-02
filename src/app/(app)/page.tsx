@@ -12,7 +12,6 @@ import {
 } from "@/lib/session-checkpoint";
 import { AppWordmark } from "@/components/app/wordmark";
 import { GoalPill } from "@/components/app/goal-pill";
-import { VOCABOOT_HOME_LEDE } from "@/lib/product";
 import { ArrowRight, Clock, Play, Sparkles } from "lucide-react";
 
 const HomeHeroBackdrop = dynamic(
@@ -101,12 +100,9 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 flex flex-col gap-8 px-5 pb-8 pt-10 sm:px-7 sm:pb-10 sm:pt-12">
-          <header className="space-y-3">
+          <header className="space-y-2.5">
             <AppWordmark size="hero" />
             <GoalPill />
-            <p className="max-w-[24rem] text-sm leading-relaxed text-muted-foreground sm:max-w-none sm:text-[0.9375rem]">
-              {VOCABOOT_HOME_LEDE}
-            </p>
           </header>
 
           {resume && resume.wordIds.length > 0 ? (
@@ -119,9 +115,9 @@ export default function Home() {
             >
               <span className="flex items-center gap-2">
                 <Play className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-                続きから
+                続きから再開
                 <span className="font-normal text-muted-foreground">
-                  {resume.idx + 1} / {resume.wordIds.length} 語目
+                  {resume.idx + 1} / {resume.wordIds.length}
                 </span>
               </span>
               <ArrowRight
@@ -132,24 +128,14 @@ export default function Home() {
           ) : null}
 
           <div className="space-y-3">
-            <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                今日の一手
-              </p>
-              <p
-                id="home-primary-cta"
-                className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl"
-              >
-                {primaryIsReview
-                  ? `まず復習 · 期限どおり ${due} 語`
-                  : "まずは10語 · 反復で定着"}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {primaryIsReview
-                  ? "抜けを減らしてから、新規の10語に進むのが近道です。"
-                  : "ミックスでリストを進め、出てきた語は自動で復習予定に入ります。"}
-              </p>
-            </div>
+            <p
+              id="home-primary-cta"
+              className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl"
+            >
+              {primaryIsReview
+                ? `復習が ${due} 語あります`
+                : "10語ずつ、始めましょう"}
+            </p>
 
             <div
               className={cn(
@@ -168,7 +154,7 @@ export default function Home() {
                     )}
                   >
                     <Clock className="h-5 w-5 opacity-90" aria-hidden />
-                    復習を続ける
+                    復習する
                     <ArrowRight className="h-5 w-5 opacity-80" aria-hidden />
                   </Link>
                 ) : null}
@@ -185,7 +171,7 @@ export default function Home() {
                   {!primaryIsReview ? (
                     <Sparkles className="h-5 w-5 opacity-90" aria-hidden />
                   ) : null}
-                  {primaryIsReview ? "新規10語を足す" : "ミックス10語で始める"}
+                  {primaryIsReview ? "新しい10語へ" : "10語を始める"}
                 </Link>
               </div>
             </div>
@@ -196,7 +182,7 @@ export default function Home() {
       <div
         className="grid grid-cols-3 gap-2"
         aria-busy={statsLoading}
-        aria-label="TOEIC 800点向けの語彙メトリクス"
+        aria-label="学習状況"
       >
         <div className="rounded-2xl border border-border/90 bg-card px-3 py-3 text-center shadow-sm ring-1 ring-black/5 dark:ring-white/10">
           <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -212,7 +198,7 @@ export default function Home() {
         </div>
         <div className="rounded-2xl border border-border/90 bg-card px-3 py-3 text-center shadow-sm ring-1 ring-black/5 dark:ring-white/10">
           <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            収録
+            収録語数
           </p>
           <StatFigure loading={statsLoading} value={total} />
         </div>

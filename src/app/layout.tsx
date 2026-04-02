@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/app/providers";
-import { VOCABOOT_DESCRIPTION, VOCABOOT_TARGET_LABEL } from "@/lib/product";
+import { VOCABOOT_DESCRIPTION } from "@/lib/product";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `Vocaboot — ${VOCABOOT_TARGET_LABEL}向け語彙`,
+  title: "Vocaboot — TOEIC 単語",
   description: VOCABOOT_DESCRIPTION,
   applicationName: "Vocaboot",
   manifest: "/manifest.webmanifest",

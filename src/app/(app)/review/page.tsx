@@ -6,8 +6,6 @@ import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
-import { GoalPill } from "@/components/app/goal-pill";
-import { VOCABOOT_REVIEW_SUBTITLE } from "@/lib/product";
 import { getHomeStats } from "@/lib/progress";
 import { Clock, RotateCcw, Sparkles } from "lucide-react";
 
@@ -35,17 +33,16 @@ export default function ReviewPage() {
   return (
     <Screen
       title="復習"
-      subtitle={VOCABOOT_REVIEW_SUBTITLE}
+      subtitle="期限が来た語を優先して出します。"
       icon={<Clock className="h-5 w-5" />}
     >
-      <GoalPill className="mb-1" />
       <Card className="rounded-3xl border bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">いま回す語</CardTitle>
+          <CardTitle className="text-base font-semibold">復習予定</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">期限どおりの語</span>
+            <span className="text-muted-foreground">復習待ちの語</span>
             <span
               className="font-semibold tabular-nums text-foreground"
               aria-busy={dueLoading}
@@ -61,8 +58,8 @@ export default function ReviewPage() {
           </div>
           <p className="text-xs text-muted-foreground">
             {hasDue
-              ? "800点帯は語彙の抜けが点差に直結します。最大30語までまとめて回せます。"
-              : "期限どおりの語が空です。学習タブから10語進めて、次の復習枠をつくりましょう。"}
+              ? "まとめて最大30語まで復習できます。"
+              : "復習待ちの語はありません。学習タブから新しい語を進めましょう。"}
           </p>
           {hasDue ? (
             <Link
@@ -74,7 +71,7 @@ export default function ReviewPage() {
               )}
             >
               <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
-              復習を開始（{Math.min(reviewN, due ?? reviewN)} 語）
+              復習を始める（{Math.min(reviewN, due ?? reviewN)} 語）
             </Link>
           ) : (
             <Link
@@ -86,7 +83,7 @@ export default function ReviewPage() {
               )}
             >
               <Sparkles className="mr-2 h-4 w-4" aria-hidden />
-              リストを10語で進める
+              10語を進める
             </Link>
           )}
         </CardContent>

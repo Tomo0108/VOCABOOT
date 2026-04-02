@@ -33,10 +33,6 @@ import {
   saveSessionCheckpoint,
 } from "@/lib/session-checkpoint";
 import {
-  VOCABOOT_SESSION_CARD_HINT,
-  VOCABOOT_SESSION_DONE_SUBTITLE,
-} from "@/lib/product";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -395,13 +391,13 @@ export function StudySessionClient() {
     return (
       <Screen
         title="完了"
-        subtitle={VOCABOOT_SESSION_DONE_SUBTITLE}
+        subtitle="お疲れさまでした。"
         icon={<Check className="h-5 w-5" />}
         backHref="/study"
       >
         <Card className="rounded-3xl border border-border/80 bg-card shadow-sm ring-1 ring-black/5">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">次の一手</CardTitle>
+            <CardTitle className="text-base font-semibold">次へ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-4 py-3">
@@ -494,7 +490,7 @@ export function StudySessionClient() {
     <>
       <Screen
         title="セッション"
-        subtitle={VOCABOOT_SESSION_CARD_HINT}
+        subtitle="タップで和訳を確認。覚え具合を選んで進みます。"
         icon={modeIcon}
         renderBack={
           <button
