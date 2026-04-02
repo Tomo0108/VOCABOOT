@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { cn, focusRingHeroGhost, focusRingHeroPrimary, focusRingLink } from "@/lib/utils";
 import { getHomeStats } from "@/lib/progress";
 import {
@@ -202,43 +201,62 @@ export default function Home() {
         </div>
       </div>
 
-      <Card className="overflow-hidden rounded-3xl border border-border/90 bg-card shadow-sm ring-1 ring-black/5 dark:ring-white/10">
-        <CardHeader className="border-b border-border py-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Zap className="h-4 w-4 text-primary" aria-hidden />
+      <Card className="gap-0 py-0 overflow-hidden rounded-3xl border border-border/90 bg-card shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+        <CardHeader className="border-b border-border px-4 py-3">
+          <CardTitle
+            id="home-other-routes"
+            className="flex items-center gap-2 text-sm font-semibold text-foreground"
+          >
+            <Zap className="h-4 w-4 shrink-0 text-primary" aria-hidden />
             ほかの入り口
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <Link
-            href="/study"
-            className={cn(
-              focusRingLink,
-              "flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-colors",
-              "hover:bg-muted/50"
-            )}
+          <nav
+            className="flex flex-col divide-y divide-border"
+            aria-labelledby="home-other-routes"
           >
-            <span className="flex items-center gap-3">
-              <BookOpen className="h-4 w-4 text-primary" />
-              学習メニュー
-            </span>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
-          </Link>
-          <Separator />
-          <Link
-            href="/review"
-            className={cn(
-              focusRingLink,
-              "flex items-center justify-between px-4 py-3.5 text-sm font-medium transition-colors",
-              "hover:bg-muted/50"
-            )}
-          >
-            <span className="flex items-center gap-3">
-              <Clock className="h-4 w-4 text-primary" />
-              復習
-            </span>
-            <ArrowRight className="h-4 w-4 text-muted-foreground" />
-          </Link>
+            <Link
+              href="/study"
+              className={cn(
+                focusRingLink,
+                "flex w-full min-h-12 items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors",
+                "hover:bg-muted/50 active:bg-muted/60"
+              )}
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                <BookOpen
+                  className="h-4 w-4 shrink-0 text-primary"
+                  aria-hidden
+                />
+                <span className="truncate">学習メニュー</span>
+              </span>
+              <ArrowRight
+                className="h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+            </Link>
+            <Link
+              href="/review"
+              className={cn(
+                focusRingLink,
+                "flex w-full min-h-12 items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors",
+                "hover:bg-muted/50 active:bg-muted/60"
+              )}
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                <Clock
+                  className="h-4 w-4 shrink-0 text-primary"
+                  aria-hidden
+                />
+                <span className="truncate">復習</span>
+              </span>
+              <ArrowRight
+                className="h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+            </Link>
+          </nav>
         </CardContent>
       </Card>
     </div>
