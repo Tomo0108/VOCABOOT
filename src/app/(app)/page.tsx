@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { cn, focusRingHeroGhost, focusRingHeroPrimary, focusRingLink } from "@/lib/utils";
@@ -13,14 +12,6 @@ import {
 import { AppWordmark } from "@/components/app/wordmark";
 import { GoalPill } from "@/components/app/goal-pill";
 import { ArrowRight, Clock, Play, Sparkles } from "lucide-react";
-
-const HomeHeroBackdrop = dynamic(
-  () =>
-    import("@/components/app/home-hero-backdrop").then(
-      (m) => m.HomeHeroBackdrop
-    ),
-  { ssr: false, loading: () => null }
-);
 
 function StatFigure({
   loading,
@@ -88,18 +79,10 @@ export default function Home() {
   return (
     <div className="space-y-6">
       <section
-        className="relative min-h-[min(340px,44vh)] overflow-hidden rounded-3xl border border-border/70 bg-card/25 shadow-md ring-1 ring-black/[0.05] dark:border-border/80 dark:bg-card/20 dark:ring-white/[0.07]"
+        className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm dark:border-border/80"
         aria-labelledby="home-primary-cta"
       >
-        <div className="absolute inset-0 min-h-[220px]">
-          <HomeHeroBackdrop
-            touched={touched ?? 0}
-            total={total ?? 0}
-            statsReady={!statsLoading}
-          />
-        </div>
-
-        <div className="relative z-10 flex flex-col gap-5 px-5 pb-6 pt-8 sm:px-7 sm:pb-8 sm:pt-10">
+        <div className="flex flex-col gap-5 px-5 pb-6 pt-8 sm:px-7 sm:pb-8 sm:pt-10">
           <header className="space-y-2.5">
             <AppWordmark size="hero" />
             <GoalPill />
