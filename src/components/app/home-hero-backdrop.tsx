@@ -6,43 +6,226 @@ import * as THREE from "three";
 import { useTheme } from "next-themes";
 
 export type HomeHeroBackdropProps = {
-  /** 一度でも学習した語の数 */
   touched: number;
-  /** リスト収録語数 */
   total: number;
-  /** 集計完了後 true（未完了時は初期形状のまま） */
   statsReady: boolean;
 };
 
-const LERP_SPEED = 3.2;
+const LERP_SPEED = 2.4;
 
-function SecondaryGeometry({ tier }: { tier: number }) {
-  switch (tier) {
-    case 0:
-      return <octahedronGeometry args={[0.9, 0]} />;
-    case 1:
-      return <tetrahedronGeometry args={[1.05, 0]} />;
-    case 2:
-      return <dodecahedronGeometry args={[0.62, 0]} />;
-    default:
-      return <torusGeometry args={[0.52, 0.14, 28, 18]} />;
+const LIGHT_PALETTE = [
+  "#FF6B6B", // coral
+  "#4ECDC4", // teal
+  "#FFE66D", // yellow
+  "#A8E6CF", // mint
+  "#DDA0DD", // plum
+  "#FF8A5C", // orange
+  "#88D8B0", // green
+  "#B8A9C9", // lavender
+];
+
+const DARK_PALETTE = [
+  "#FF8A80", // soft coral
+  "#64FFDA", // teal glow
+  "#FFD54F", // warm yellow
+  "#69F0AE", // mint glow
+  "#CE93D8", // plum
+  "#FFAB91", // soft orange
+  "#80CBC4", // green
+  "#B39DDB", // lavender
+];
+
+type BubbleConfig = {
+  position: [number, number, number];
+  scale: number;
+  shape: "cube" | "sphere" | "torus" | "pill";
+  colorIdx: number;
+  speed: number;
+  phase: number;
+  rotSpeed: [number, number, number];
+};
+
+function generateBubbles(count: number, seed: number): BubbleConfig[] {
+  let s = seed;
+  function rand() {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s & 0x7fffffff) / 0x7fffffff;
+  }
+
+  const shapes: BubbleConfig["shape"][] = ["cube", "sphere", "torus", "pill"];
+  const configs: BubbleConfig[] = [];
+
+  for (let i = 0; i < count; i++) {
+    configs.push({
+      position: [
+        (rand() - 0.5) * 3.6,
+        (rand() - 0.5) * 2.8,
+        (rand() - 0.5) * 1.6,
+      ],
+      scale: 0.12 + rand() * 0.22,
+      shape: shapes[Math.floor(rand() * shapes.length)],
+      colorIdx: Math.floor(rand() * LIGHT_PALETTE.length),
+      speed: 0.3 + rand() * 0.6,
+      phase: rand() * Math.PI * 2,
+      rotSpeed: [
+        (rand() - 0.5) * 0.8,
+        (rand() - 0.5) * 0.8,
+        (rand() - 0.5) * 0.4,
+      ],
+    });
+  }
+  return configs;
+}
+
+function BubbleShape({ shape }: { shape: BubbleConfig["shape"] }) {
+  switch (shape) {
+    case "cube":
+      return <boxGeometry args={[1, 1.3, 0.4]} />;
+    case "sphere":
+      return <sphereGeometry args={[0.6, 16, 16]} />;
+    case "torus":
+      return <torusGeometry args={[0.45, 0.18, 12, 24]} />;
+    case "pill":
+      return <capsuleGeometry args={[0.3, 0.6, 8, 16]} />;
   }
 }
 
-function HeroShapes({
+function FloatingBubble({
+  config,
+  palette,
+  visible,
+  clock,
+}: {
+  config: BubbleConfig;
+  palette: string[];
+  visible: boolean;
+  clock: number;
+}) {
+  const mesh = useRef<THREE.Mesh>(null);
+  const mat = useRef<THREE.MeshStandardMaterial>(null);
+  const targetOpacity = visible ? 1 : 0;
+  const currentOpacity = useRef(0);
+
+  useFrame((_, delta) => {
+    const m = mesh.current;
+    if (!m) return;
+
+    currentOpacity.current = THREE.MathUtils.lerp(
+      currentOpacity.current,
+      targetOpacity,
+      delta * 2.5
+    );
+    if (mat.current) {
+      mat.current.opacity = currentOpacity.current;
+    }
+    m.visible = currentOpacity.current > 0.01;
+
+    const t = clock;
+    const bob = Math.sin(t * config.speed + config.phase) * 0.12;
+    const sway = Math.cos(t * config.speed * 0.7 + config.phase) * 0.06;
+    m.position.set(
+      config.position[0] + sway,
+      config.position[1] + bob,
+      config.position[2]
+    );
+    m.rotation.x += delta * config.rotSpeed[0];
+    m.rotation.y += delta * config.rotSpeed[1];
+    m.rotation.z += delta * config.rotSpeed[2];
+  });
+
+  const color = palette[config.colorIdx % palette.length];
+
+  return (
+    <mesh ref={mesh} scale={config.scale} visible={false}>
+      <BubbleShape shape={config.shape} />
+      <meshStandardMaterial
+        ref={mat}
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.15}
+        metalness={0.05}
+        roughness={0.55}
+        transparent
+        opacity={0}
+      />
+    </mesh>
+  );
+}
+
+function CenterBook({
+  isDark,
+  ratio,
+}: {
+  isDark: boolean;
+  ratio: React.RefObject<number>;
+}) {
+  const group = useRef<THREE.Group>(null);
+  const coverMat = useRef<THREE.MeshStandardMaterial>(null);
+  const pageMat = useRef<THREE.MeshStandardMaterial>(null);
+
+  const coverColor = isDark ? "#CE93D8" : "#FF6B6B";
+  const pageColor = isDark ? "#2a2a3e" : "#fffef5";
+
+  useFrame((state, delta) => {
+    const g = group.current;
+    if (!g) return;
+    g.rotation.y += delta * 0.15;
+    g.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.08;
+    const s = 0.7 + (ratio.current ?? 0) * 0.35;
+    g.scale.setScalar(THREE.MathUtils.lerp(g.scale.x, s, delta * 2));
+
+    if (coverMat.current) {
+      const r = ratio.current ?? 0;
+      coverMat.current.emissiveIntensity = 0.08 + r * 0.15;
+    }
+  });
+
+  return (
+    <group ref={group} position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0.06]}>
+        <boxGeometry args={[0.7, 0.9, 0.06]} />
+        <meshStandardMaterial
+          ref={coverMat}
+          color={coverColor}
+          emissive={coverColor}
+          emissiveIntensity={0.08}
+          metalness={0.05}
+          roughness={0.5}
+        />
+      </mesh>
+      <mesh position={[0, 0, -0.01]}>
+        <boxGeometry args={[0.62, 0.82, 0.08]} />
+        <meshStandardMaterial
+          ref={pageMat}
+          color={pageColor}
+          metalness={0.0}
+          roughness={0.9}
+        />
+      </mesh>
+      <mesh position={[-0.34, 0, 0.02]}>
+        <boxGeometry args={[0.04, 0.9, 0.14]} />
+        <meshStandardMaterial
+          color={coverColor}
+          emissive={coverColor}
+          emissiveIntensity={0.06}
+          metalness={0.05}
+          roughness={0.5}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function Scene({
   isDark,
   progress,
 }: {
   isDark: boolean;
   progress: HomeHeroBackdropProps;
 }) {
-  const group = useRef<THREE.Group>(null);
-  const mainMat = useRef<THREE.MeshStandardMaterial>(null);
-  const accentMat = useRef<THREE.MeshStandardMaterial>(null);
+  const clockRef = useRef(0);
   const smoothRatio = useRef(0);
   const targetRef = useRef(0);
-  const prevMainDetail = useRef(-1);
-  const prevSecTier = useRef(-1);
 
   const targetRatio =
     progress.statsReady && progress.total > 0
@@ -50,120 +233,51 @@ function HeroShapes({
       : 0;
   targetRef.current = targetRatio;
 
-  const palette = useMemo(() => {
-    if (isDark) {
-      return {
-        mainA: "#5c6578",
-        mainB: "#9eb0d4",
-        accentA: "#454d5c",
-        accentB: "#7a8fb8",
-        emissiveLo: 0.06,
-        emissiveHi: 0.17,
-      };
-    }
-    return {
-      mainA: "#b0a090",
-      mainB: "#d4a82e",
-      accentA: "#c4b8a4",
-      accentB: "#e8c860",
-      emissiveLo: 0.04,
-      emissiveHi: 0.15,
-    };
-  }, [isDark]);
+  const bubbles = useMemo(() => generateBubbles(18, 42), []);
+  const palette = isDark ? DARK_PALETTE : LIGHT_PALETTE;
 
-  const cMainA = useMemo(() => new THREE.Color(palette.mainA), [palette.mainA]);
-  const cMainB = useMemo(() => new THREE.Color(palette.mainB), [palette.mainB]);
-  const cAccentA = useMemo(() => new THREE.Color(palette.accentA), [palette.accentA]);
-  const cAccentB = useMemo(() => new THREE.Color(palette.accentB), [palette.accentB]);
-  const tmpMain = useMemo(() => new THREE.Color(), []);
-  const tmpAccent = useMemo(() => new THREE.Color(), []);
-
-  const [mainDetail, setMainDetail] = useState(0);
-  const [secTier, setSecTier] = useState(0);
+  const minVisible = 6;
+  const maxVisible = bubbles.length;
 
   useFrame((_, delta) => {
+    clockRef.current += delta;
     const t = Math.min(1, LERP_SPEED * delta);
     smoothRatio.current = THREE.MathUtils.lerp(
       smoothRatio.current,
       targetRef.current,
       t
     );
-    const r = smoothRatio.current;
-
-    const g = group.current;
-    if (g) {
-      const spin = 0.075 + r * 0.15;
-      g.rotation.y += delta * spin;
-      g.rotation.x += delta * (0.026 + r * 0.042);
-      g.scale.setScalar(0.82 + r * 0.26);
-    }
-
-    const mMain = mainMat.current;
-    const mAccent = accentMat.current;
-    if (mMain) {
-      tmpMain.copy(cMainA).lerp(cMainB, r);
-      mMain.color.copy(tmpMain);
-      mMain.emissive.copy(tmpMain);
-      mMain.emissiveIntensity =
-        palette.emissiveLo + r * (palette.emissiveHi - palette.emissiveLo);
-      mMain.metalness = 0.2 + r * 0.34;
-      mMain.roughness = 0.54 - r * 0.2;
-    }
-    if (mAccent) {
-      tmpAccent.copy(cAccentA).lerp(cAccentB, r);
-      mAccent.color.copy(tmpAccent);
-      mAccent.emissive.copy(tmpAccent);
-      mAccent.emissiveIntensity = 0.028 + r * 0.11;
-      mAccent.metalness = 0.1 + r * 0.3;
-      mAccent.roughness = 0.64 - r * 0.22;
-    }
-
-    const md = Math.min(3, Math.floor(r * 3.001));
-    const st = Math.min(3, Math.floor(r * 2.751 + 0.25));
-
-    if (md !== prevMainDetail.current) {
-      prevMainDetail.current = md;
-      setMainDetail(md);
-    }
-    if (st !== prevSecTier.current) {
-      prevSecTier.current = st;
-      setSecTier(st);
-    }
   });
 
+  const visibleCount = Math.round(
+    minVisible + (maxVisible - minVisible) * smoothRatio.current
+  );
+
   return (
-    <group ref={group}>
-      <mesh position={[0.32, 0.08, 0]} rotation={[0.35, 0.45, 0.2]}>
-        <icosahedronGeometry args={[0.78, mainDetail]} />
-        <meshStandardMaterial
-          ref={mainMat}
-          color={palette.mainA}
-          emissive={palette.mainA}
-          emissiveIntensity={palette.emissiveLo}
-          metalness={0.2}
-          roughness={0.54}
+    <>
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[4, 6, 5]} intensity={0.9} />
+      <directionalLight
+        position={[-3, -2, -4]}
+        intensity={0.3}
+        color={isDark ? "#8080ff" : "#ffd4b8"}
+      />
+
+      <CenterBook isDark={isDark} ratio={smoothRatio} />
+
+      {bubbles.map((b, i) => (
+        <FloatingBubble
+          key={i}
+          config={b}
+          palette={palette}
+          visible={i < visibleCount}
+          clock={clockRef.current}
         />
-      </mesh>
-      <mesh
-        position={[-0.42, -0.22, 0.12]}
-        rotation={[-0.2, 0.6, 0.15]}
-        scale={0.46 + secTier * 0.05}
-      >
-        <SecondaryGeometry tier={secTier} />
-        <meshStandardMaterial
-          ref={accentMat}
-          color={palette.accentA}
-          emissive={palette.accentA}
-          emissiveIntensity={0.028}
-          metalness={0.1}
-          roughness={0.64}
-        />
-      </mesh>
-    </group>
+      ))}
+    </>
   );
 }
 
-/** ホーム用 3D 背景。学習進捗に応じて形状・色が変化する（WebGL・SSR なし） */
 export function HomeHeroBackdrop({
   touched = 0,
   total = 0,
@@ -186,7 +300,7 @@ export function HomeHeroBackdrop({
     >
       {mounted ? (
         <Canvas
-          camera={{ position: [0, 0, 3.4], fov: 40 }}
+          camera={{ position: [0, 0, 4], fov: 38 }}
           dpr={[1, 1.5]}
           gl={{
             alpha: true,
@@ -196,20 +310,13 @@ export function HomeHeroBackdrop({
           className="h-full w-full"
         >
           <Suspense fallback={null}>
-            <ambientLight intensity={0.58} />
-            <directionalLight position={[5, 8, 6]} intensity={0.88} />
-            <directionalLight
-              position={[-4, -3, -5]}
-              intensity={0.32}
-              color="#b8c4d4"
-            />
-            <HeroShapes isDark={isDark} progress={progress} />
+            <Scene isDark={isDark} progress={progress} />
           </Suspense>
         </Canvas>
       ) : (
         <div className="h-full w-full bg-gradient-to-br from-muted/50 via-muted/25 to-transparent" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/45 to-background/90 dark:from-background/20 dark:via-background/50 dark:to-background/94" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/5 via-background/40 to-background/88 dark:from-background/10 dark:via-background/45 dark:to-background/92" />
     </div>
   );
 }
