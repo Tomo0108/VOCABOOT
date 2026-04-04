@@ -38,6 +38,8 @@ export function Screen({
       </Link>
     ) : null);
 
+  const hasVisibleTitle = title.trim().length > 0;
+
   return (
     <div className="space-y-4">
       <header className="space-y-1.5">
@@ -47,8 +49,13 @@ export function Screen({
             <span className="text-primary" aria-hidden>
               {icon}
             </span>
-            <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
-              {title}
+            <h1
+              className={cn(
+                "truncate text-xl font-semibold tracking-tight text-foreground",
+                !hasVisibleTitle && "sr-only"
+              )}
+            >
+              {hasVisibleTitle ? title : "学習"}
             </h1>
           </div>
           {right ? <div className="shrink-0">{right}</div> : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,6 +78,29 @@ function speakEnglish(term: string) {
   window.speechSynthesis.speak(u);
 }
 
+/** 正解1＋他語からの誤答3をランダム順で返す */
+function buildMeaningQuizOptions(current: ToeicWord, all: ToeicWord[]): string[] {
+  const correct = current.meaningJa?.trim() || "—";
+  const distractorPool = shuffleRandom(
+    [
+      ...new Set(
+        all
+          .filter((w) => w.id !== current.id)
+          .map((w) => w.meaningJa?.trim())
+          .filter((m): m is string => Boolean(m))
+      ),
+    ].filter((m) => m !== correct)
+  );
+  const wrong: string[] = distractorPool.slice(0, 3);
+  while (wrong.length < 3 && distractorPool.length > 0) {
+    wrong.push(distractorPool[wrong.length % distractorPool.length]!);
+  }
+  while (wrong.length < 3) {
+    wrong.push(`（ほかの語義 ${wrong.length + 1}）`);
+  }
+  return shuffleRandom([correct, ...wrong.slice(0, 3)]);
+}
+
 export function StudySessionClient() {
   const sp = useSearchParams();
   const pathname = usePathname();
@@ -89,7 +112,6 @@ export function StudySessionClient() {
   const [words, setWords] = useState<ToeicWord[]>([]);
   const [loading, setLoading] = useState(true);
   const [idx, setIdx] = useState(0);
-  const [meaningOpen, setMeaningOpen] = useState(false);
   const [moreNew, setMoreNew] = useState(false);
   const [moreReview, setMoreReview] = useState(false);
   const [mixSeedState, setMixSeedState] = useState<string | null>(null);
@@ -97,7 +119,6 @@ export function StudySessionClient() {
   const [ratingBusy, setRatingBusy] = useState(false);
   const [ratingCounts, setRatingCounts] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [leaveOpen, setLeaveOpen] = useState(false);
-  const goNextRef = useRef<(r: Rating) => void>(() => {});
   const restoredRef = useRef(false);
 
   useEffect(() => {
@@ -107,7 +128,6 @@ export function StudySessionClient() {
       if (cancelled) return;
       setLoading(true);
       setIdx(0);
-      setMeaningOpen(false);
 
       void (async () => {
         let mixSeed: string | null = null;
@@ -156,6 +176,10 @@ export function StudySessionClient() {
   }, []);
 
   const current = words[idx];
+  const meaningOptions = useMemo(() => {
+    if (!current) return [] as string[];
+    return buildMeaningQuizOptions(current, getAllWords());
+  }, [current]);
   const done = !loading && words.length > 0 && idx >= words.length;
   const inQuiz = !loading && words.length > 0 && idx < words.length;
   const totalWords = getAllWords().length;
@@ -258,7 +282,6 @@ export function StudySessionClient() {
           compactSchedule: prefs?.compactSchedule ?? false,
         });
         setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
-        setMeaningOpen(false);
         setIdx((v) => v + 1);
       } catch {
         toast.error("記録を保存できませんでした。もう一度お試しください。");
@@ -269,32 +292,37 @@ export function StudySessionClient() {
     [current, prefs?.compactSchedule, ratingBusy]
   );
 
-  goNextRef.current = (r) => {
-    void goNext(r);
-  };
+  const pickMeaning = useCallback(
+    (picked: string) => {
+      if (!current || ratingBusy) return;
+      const correct = current.meaningJa?.trim() || "—";
+      if (picked === correct) void goNext("good");
+      else {
+        toast.error(`不正解… 正解は「${correct}」`);
+        void goNext("again");
+      }
+    },
+    [current, ratingBusy, goNext]
+  );
 
   useEffect(() => {
     if (loading) return;
-    const inQuiz = words.length > 0 && idx < words.length;
-    if (!inQuiz) return;
+    const inQuizLocal = words.length > 0 && idx < words.length;
+    if (!inQuizLocal) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented) return;
       const el = e.target as HTMLElement;
       if (el.closest("input, textarea, select, [contenteditable=true]")) return;
-      const map: Record<string, Rating> = {
-        "1": "again",
-        "2": "hard",
-        "3": "good",
-        "4": "easy",
-      };
-      const rating = map[e.key];
-      if (!rating) return;
+      const n = Number(e.key);
+      if (n < 1 || n > 4) return;
       e.preventDefault();
-      goNextRef.current(rating);
+      const picked = meaningOptions[n - 1];
+      if (!picked) return;
+      pickMeaning(picked);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [loading, words.length, idx]);
+  }, [loading, words.length, idx, meaningOptions, pickMeaning]);
 
   const requestLeaveStudy = useCallback(() => {
     if (inQuiz) setLeaveOpen(true);
@@ -327,7 +355,7 @@ export function StudySessionClient() {
   if (loading) {
     return (
       <Screen
-        title="セッション"
+        title=""
         subtitle="語リストを準備しています。"
         icon={modeIcon}
         backHref="/study"
@@ -354,7 +382,7 @@ export function StudySessionClient() {
 
     return (
       <Screen
-        title="セッション"
+        title=""
         subtitle={emptyMsg}
         icon={modeIcon}
         backHref="/study"
@@ -402,20 +430,19 @@ export function StudySessionClient() {
             <CardTitle className="text-base font-semibold">次へ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <div className="grid grid-cols-4 gap-2 text-center">
-              {([
-                { key: "again" as const, label: "忘れた", color: "text-destructive" },
-                { key: "hard" as const, label: "難しい", color: "text-muted-foreground" },
-                { key: "good" as const, label: "できた", color: "text-primary" },
-                { key: "easy" as const, label: "簡単", color: "text-foreground" },
-              ] as const).map(({ key, label, color }) => (
-                <div key={key} className="rounded-xl border border-border/60 bg-background/80 px-2 py-2.5">
-                  <p className={cn("text-lg font-semibold tabular-nums", color)}>
-                    {ratingCounts[key]}
-                  </p>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">{label}</p>
-                </div>
-              ))}
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className="rounded-xl border border-border/60 bg-background/80 px-2 py-2.5">
+                <p className="text-lg font-semibold tabular-nums text-primary">
+                  {ratingCounts.good}
+                </p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">正解</p>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/80 px-2 py-2.5">
+                <p className="text-lg font-semibold tabular-nums text-destructive">
+                  {ratingCounts.again}
+                </p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">不正解</p>
+              </div>
             </div>
 
             {mixHasNext ? (
@@ -488,7 +515,6 @@ export function StudySessionClient() {
     );
   }
 
-  const hasMeaning = Boolean(current.meaningJa?.trim());
   const posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string> = {
     n: "名",
     v: "動",
@@ -502,8 +528,8 @@ export function StudySessionClient() {
   return (
     <>
       <Screen
-        title="セッション"
-        subtitle="タップで和訳を確認。覚え具合を選んで進みます。"
+        title=""
+        subtitle="表示された和訳のうち、正しいものを1つ選びます。"
         icon={modeIcon}
         renderBack={
           <button
@@ -575,91 +601,25 @@ export function StudySessionClient() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <button
-            type="button"
-            onClick={() => setMeaningOpen((v) => !v)}
-            className={cn(
-              focusRingLink,
-              "w-full rounded-2xl border text-left transition-colors",
-              meaningOpen
-                ? "cursor-pointer border-border/60 bg-background/80 p-4 hover:bg-muted/30 active:bg-muted/50"
-                : "border-dashed border-border/70 bg-muted/30 px-4 py-8 active:bg-muted/50",
-              !meaningOpen &&
-                "cursor-pointer hover:border-primary/40 hover:bg-muted/40"
-            )}
-            aria-expanded={meaningOpen}
-            aria-label={meaningOpen ? "和訳を隠す" : "和訳を表示"}
-          >
-            {!meaningOpen ? (
-              <p className="text-center text-sm text-muted-foreground">
-                タップで和訳
-              </p>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-base leading-relaxed text-foreground">
-                  {hasMeaning ? current.meaningJa : "—"}
-                </p>
-                {prefs?.showExample !== false && current.exampleEn ? (
-                  <div className="mt-4 border-t border-border/50 pt-4">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      例文
-                    </p>
-                    <p className="mt-2 text-sm font-medium leading-relaxed text-foreground">
-                      {current.exampleEn}
-                    </p>
-                    {current.exampleJa ? (
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {current.exampleJa}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : null}
-                <p className="pt-2 text-center text-xs text-muted-foreground">
-                  タップで閉じる
-                </p>
-              </div>
-            )}
-          </button>
-
           <div className="grid grid-cols-2 gap-2.5">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 active:bg-destructive/15"
-              disabled={ratingBusy}
-              onClick={() => void goNext("again")}
-            >
-              忘れた
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-xl"
-              disabled={ratingBusy}
-              onClick={() => void goNext("hard")}
-            >
-              難しい
-            </Button>
-            <Button
-              type="button"
-              className="h-12 rounded-xl bg-primary font-medium text-primary-foreground"
-              disabled={ratingBusy}
-              onClick={() => void goNext("good")}
-            >
-              できた
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              className="h-12 rounded-xl"
-              disabled={ratingBusy}
-              onClick={() => void goNext("easy")}
-            >
-              簡単
-            </Button>
+            {meaningOptions.map((label, i) => (
+              <Button
+                key={`${current.id}-${i}`}
+                type="button"
+                variant="outline"
+                className="h-auto min-h-12 justify-start whitespace-normal rounded-xl px-3 py-3 text-left text-sm font-medium leading-snug"
+                disabled={ratingBusy}
+                onClick={() => pickMeaning(label)}
+              >
+                <span className="mr-2 shrink-0 tabular-nums text-muted-foreground">
+                  {i + 1}.
+                </span>
+                <span>{label}</span>
+              </Button>
+            ))}
           </div>
           <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
-            1〜4 キーでも選べます
+            キー 1〜4 でも選べます
           </p>
         </CardContent>
       </Card>
