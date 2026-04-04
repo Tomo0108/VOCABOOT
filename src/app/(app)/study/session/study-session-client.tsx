@@ -229,6 +229,17 @@ function FeedbackCard({
   return (
     <>
       <CardHeader className="space-y-3 pb-3">
+        <Button
+          type="button"
+          className="h-12 w-full rounded-xl font-medium"
+          disabled={ratingBusy}
+          onClick={onConfirm}
+        >
+          次の問題へ
+        </Button>
+        <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
+          Enter キーでも進めます
+        </p>
         <p className="sr-only" aria-live="polite" aria-atomic="true">
           {pending.wasCorrect ? "正解です" : "不正解です"}
         </p>
@@ -265,24 +276,13 @@ function FeedbackCard({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-5 pt-0">
         <WordAnswerExplainer
           word={word}
           wasCorrect={pending.wasCorrect}
           pickedMeaning={pending.pickedMeaning}
           posLabel={posLabel}
         />
-        <Button
-          type="button"
-          className="h-12 w-full rounded-xl font-medium"
-          disabled={ratingBusy}
-          onClick={onConfirm}
-        >
-          次の問題へ
-        </Button>
-        <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
-          Enter キーでも進めます
-        </p>
       </CardContent>
     </>
   );
