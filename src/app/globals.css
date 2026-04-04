@@ -135,6 +135,46 @@
   }
 }
 
+/** ホームロゴ Vocaboot の「oo」— ボールのように縦に跳ねる */
+@keyframes vocaboot-boot-o-bounce {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  16% {
+    transform: translate3d(0, -0.4em, 0);
+  }
+  32% {
+    transform: translate3d(0, 0, 0);
+  }
+  46% {
+    transform: translate3d(0, -0.15em, 0);
+  }
+  58% {
+    transform: translate3d(0, 0, 0);
+  }
+  68% {
+    transform: translate3d(0, -0.06em, 0);
+  }
+  78% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.vocaboot-boot-o {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  animation: vocaboot-boot-o-bounce 1.35s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.vocaboot-boot-o--1 {
+  animation-delay: 0s;
+}
+
+.vocaboot-boot-o--2 {
+  animation-delay: 0.26s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
