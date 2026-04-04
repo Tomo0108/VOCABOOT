@@ -18,7 +18,8 @@ async function main() {
 
   await sharp(master).resize(192, 192).png().toFile(join(publicDir, "icon-192.png"));
   await sharp(master).resize(512, 512).png().toFile(join(publicDir, "icon-512.png"));
-  await sharp(master).resize(180, 180).png().toFile(join(publicDir, "apple-touch-icon.png"));
+  // iOS は透過を白で埋めがちなので、不透明の maskable 系から書き出す
+  await sharp(maskable).resize(180, 180).png().toFile(join(publicDir, "apple-touch-icon.png"));
 
   await sharp(maskable).resize(512, 512).png().toFile(join(publicDir, "icon-maskable-512.png"));
 
