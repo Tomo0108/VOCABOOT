@@ -44,14 +44,21 @@ export function Screen({
     <div className="space-y-4">
       <header className="space-y-1.5">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-1.5">
-            {backControl}
-            <span className="text-primary" aria-hidden>
-              {icon}
-            </span>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5">
+            {backControl ? (
+              <span className="inline-flex shrink-0">{backControl}</span>
+            ) : null}
+            {icon ? (
+              <span
+                className="inline-flex shrink-0 items-center justify-center text-primary"
+                aria-hidden
+              >
+                {icon}
+              </span>
+            ) : null}
             <h1
               className={cn(
-                "truncate text-xl font-semibold tracking-tight text-foreground",
+                "min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground",
                 !hasVisibleTitle && "sr-only"
               )}
             >

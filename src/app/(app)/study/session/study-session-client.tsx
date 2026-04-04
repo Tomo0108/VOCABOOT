@@ -589,7 +589,12 @@ export function StudySessionClient() {
       ? `&seed=${encodeURIComponent(mixSeedState)}`
       : "";
   const mixNextHref = `/study/session?mode=mix&n=${n}&offset=${offset + words.length}${seedQ}`;
-  const sessionScreenTitle = mode === "review" ? "復習" : "学習";
+  const sessionScreenTitle =
+    mode === "review"
+      ? "復習"
+      : mode === "new"
+        ? "学習（新規）"
+        : "学習（ミックス）";
 
   const posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string> = {
     n: "名",
