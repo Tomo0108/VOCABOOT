@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vocaboot
 
-## Getting Started
+TOEIC 頻出単語をオフラインで反復できる、ブラウザ向けの学習アプリ（PWA）です。進捗・設定は端末内（IndexedDB）に保存されます。
 
-First, run the development server:
+## できること
+
+- **ホーム**: 復習待ち・学習済み・リスト語数の概要、セッション途中からの再開
+- **学習**: 10語ずつの「新規」「ミックス」セッション、4択クイズとフィードバック
+- **復習**: 間隔反復（SRS）に基づくスケジュール表示と復習セッション
+- **設定**: ライト / ダーク / システムテーマ、復習間隔のコンパクト化、例文表示、英語の自動読み上げ、JSON バックアップのエクスポート・インポート
+
+## 技術スタック
+
+- [Next.js](https://nextjs.org/) 16（App Router）・[React](https://react.dev/) 19
+- [TypeScript](https://www.typescriptlang.org/)、[Tailwind CSS](https://tailwindcss.com/) 4
+- UI: [Base UI](https://base-ui.com/)、[shadcn/ui](https://ui.shadcn.com/) 系コンポーネント、[Lucide](https://lucide.dev/) アイコン
+- 永続化: [idb-keyval](https://github.com/jakearchibald/idb-keyval)
+- PWA: [next-pwa](https://github.com/shadowwalker/next-pwa)
+
+## 開発
+
+Node.js を用意したうえで、依存関係を入れて開発サーバーを起動します。
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### よく使うコマンド
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| コマンド | 説明 |
+|----------|------|
+| `npm run dev` | 開発サーバー |
+| `npm run build` | 本番ビルド |
+| `npm run start` | 本番サーバー（ビルド後） |
+| `npm run lint` | ESLint |
 
-## Learn More
+### データ生成スクリプト（メンテ用）
 
-To learn more about Next.js, take a look at the following resources:
+語リストの再生成・補完には別途 API キーや入力ファイルが必要な場合があります。スクリプト本体は `scripts/` を参照してください。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| コマンド | 説明 |
+|----------|------|
+| `npm run data:tsl` | TSL 由来データのビルド |
+| `npm run data:wiktionary:ja` | Wiktionary による日本語補完 |
+| `npm run data:fill-ja` | 欠損和訳の補填（Google 等） |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## デプロイ
 
-## Deploy on Vercel
+静的出力に依存しない通常の Next.js アプリとしてホスティングできます。PWA の Service Worker は本番ビルドで有効になります（開発時は無効）。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ライセンス
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+リポジトリにライセンスファイルがない場合は、利用条件はリポジトリ所有者に確認してください。
