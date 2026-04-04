@@ -41,6 +41,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn, focusRingLink } from "@/lib/utils";
+import { inferSvoc, splitExampleAroundTerm } from "@/lib/example-svoc";
 
 type Mode = "new" | "mix" | "review";
 
@@ -101,6 +102,167 @@ function buildMeaningQuizOptions(current: ToeicWord, all: ToeicWord[]): string[]
   return shuffleRandom([correct, ...wrong.slice(0, 3)]);
 }
 
+function FeedbackCard({
+  word,
+  pending,
+  posLabel,
+  ratingBusy,
+  onConfirm,
+  onSpeak,
+}: {
+  word: ToeicWord;
+  pending: { wasCorrect: boolean; pickedMeaning: string };
+  posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string>;
+  ratingBusy: boolean;
+  onConfirm: () => void;
+  onSpeak: () => void;
+}) {
+  const correctMeaning = word.meaningJa?.trim() || "—";
+  const svoc = word.exampleEn ? inferSvoc(word, word.exampleEn) : null;
+  const ex = splitExampleAroundTerm(
+    word.exampleEn ?? "",
+    word.term,
+    word.partOfSpeech
+  );
+
+  return (
+    <>
+      <CardHeader className="space-y-3 pb-3">
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {pending.wasCorrect ? "正解です" : "不正解です"}
+        </p>
+        <div
+          className={cn(
+            "rounded-2xl px-4 py-3 text-center text-base font-semibold tracking-tight",
+            pending.wasCorrect
+              ? "bg-primary/12 text-primary"
+              : "bg-destructive/10 text-destructive"
+          )}
+        >
+          {pending.wasCorrect ? "正解" : "不正解"}
+        </div>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 space-y-1">
+            <CardTitle className="break-words text-2xl font-semibold tracking-tight text-foreground">
+              {word.term}
+            </CardTitle>
+            {word.partOfSpeech ? (
+              <p className="text-xs text-muted-foreground">
+                {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
+              </p>
+            ) : null}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="shrink-0 rounded-xl"
+            aria-label="英語を読み上げ"
+            onClick={onSpeak}
+          >
+            <Volume2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {!pending.wasCorrect ? (
+          <div className="space-y-1 rounded-xl border border-border/60 bg-muted/25 px-3 py-2.5 text-sm">
+            <p className="text-xs font-medium text-muted-foreground">選んだ和訳</p>
+            <p className="text-foreground">{pending.pickedMeaning}</p>
+          </div>
+        ) : null}
+        <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5 text-sm">
+          <p className="text-xs font-medium text-muted-foreground">正解の和訳</p>
+          <p className="font-medium text-foreground">{correctMeaning}</p>
+        </div>
+
+        {word.exampleEn ? (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">例文（英語）</p>
+            <p className="text-sm font-medium leading-relaxed text-foreground">
+              {ex.found ? (
+                <>
+                  {ex.before}
+                  <mark
+                    className={cn(
+                      "rounded-md px-1 py-0.5 font-semibold",
+                      "bg-amber-400/35 text-amber-950 dark:bg-amber-400/25 dark:text-amber-50"
+                    )}
+                  >
+                    {ex.match}
+                  </mark>
+                  {ex.after}
+                </>
+              ) : (
+                word.exampleEn
+              )}
+            </p>
+            {word.exampleJa ? (
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {word.exampleJa}
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">この語には例文が登録されていません。</p>
+        )}
+
+        {svoc ? (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">
+              SVOC（自動推定・参考）
+            </p>
+            <dl className="space-y-2.5 rounded-xl border border-border/60 bg-background/80 px-3 py-3 text-sm">
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  S（主語）
+                </dt>
+                <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.s}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  V（動詞）
+                </dt>
+                <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.v}</dd>
+              </div>
+              {svoc.o ? (
+                <div>
+                  <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    O（目的語）
+                  </dt>
+                  <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.o}</dd>
+                </div>
+              ) : null}
+              {svoc.c ? (
+                <div>
+                  <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {word.partOfSpeech === "adv"
+                      ? "該当語（副詞）"
+                      : "C（補語）"}
+                  </dt>
+                  <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.c}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </div>
+        ) : null}
+
+        <Button
+          type="button"
+          className="h-12 w-full rounded-xl font-medium"
+          disabled={ratingBusy}
+          onClick={onConfirm}
+        >
+          次の問題へ
+        </Button>
+        <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
+          Enter キーでも進めます
+        </p>
+      </CardContent>
+    </>
+  );
+}
+
 export function StudySessionClient() {
   const sp = useSearchParams();
   const pathname = usePathname();
@@ -119,6 +281,11 @@ export function StudySessionClient() {
   const [ratingBusy, setRatingBusy] = useState(false);
   const [ratingCounts, setRatingCounts] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [leaveOpen, setLeaveOpen] = useState(false);
+  const [pendingFeedback, setPendingFeedback] = useState<{
+    rating: Rating;
+    pickedMeaning: string;
+    wasCorrect: boolean;
+  } | null>(null);
   const restoredRef = useRef(false);
 
   useEffect(() => {
@@ -128,6 +295,7 @@ export function StudySessionClient() {
       if (cancelled) return;
       setLoading(true);
       setIdx(0);
+      setPendingFeedback(null);
 
       void (async () => {
         let mixSeed: string | null = null;
@@ -181,7 +349,8 @@ export function StudySessionClient() {
     return buildMeaningQuizOptions(current, getAllWords());
   }, [current]);
   const done = !loading && words.length > 0 && idx >= words.length;
-  const inQuiz = !loading && words.length > 0 && idx < words.length;
+  const inQuiz =
+    !loading && words.length > 0 && idx < words.length;
   const totalWords = getAllWords().length;
   const percent = Math.round(
     (Math.min(idx, words.length) / Math.max(words.length, 1)) * 100
@@ -273,7 +442,7 @@ export function StudySessionClient() {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [inQuiz]);
 
-  const goNext = useCallback(
+  const applyRatingAndAdvance = useCallback(
     async (rating: Rating) => {
       if (!current || ratingBusy) return;
       setRatingBusy(true);
@@ -282,6 +451,7 @@ export function StudySessionClient() {
           compactSchedule: prefs?.compactSchedule ?? false,
         });
         setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
+        setPendingFeedback(null);
         setIdx((v) => v + 1);
       } catch {
         toast.error("記録を保存できませんでした。もう一度お試しください。");
@@ -294,16 +464,22 @@ export function StudySessionClient() {
 
   const pickMeaning = useCallback(
     (picked: string) => {
-      if (!current || ratingBusy) return;
+      if (!current || ratingBusy || pendingFeedback) return;
       const correct = current.meaningJa?.trim() || "—";
-      if (picked === correct) void goNext("good");
-      else {
-        toast.error(`不正解… 正解は「${correct}」`);
-        void goNext("again");
-      }
+      const wasCorrect = picked === correct;
+      setPendingFeedback({
+        rating: wasCorrect ? "good" : "again",
+        pickedMeaning: picked,
+        wasCorrect,
+      });
     },
-    [current, ratingBusy, goNext]
+    [current, ratingBusy, pendingFeedback]
   );
+
+  const confirmFeedback = useCallback(() => {
+    if (!pendingFeedback) return;
+    void applyRatingAndAdvance(pendingFeedback.rating);
+  }, [pendingFeedback, applyRatingAndAdvance]);
 
   useEffect(() => {
     if (loading) return;
@@ -313,6 +489,13 @@ export function StudySessionClient() {
       if (e.defaultPrevented) return;
       const el = e.target as HTMLElement;
       if (el.closest("input, textarea, select, [contenteditable=true]")) return;
+      if (pendingFeedback) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          confirmFeedback();
+        }
+        return;
+      }
       const n = Number(e.key);
       if (n < 1 || n > 4) return;
       e.preventDefault();
@@ -322,7 +505,15 @@ export function StudySessionClient() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [loading, words.length, idx, meaningOptions, pickMeaning]);
+  }, [
+    loading,
+    words.length,
+    idx,
+    meaningOptions,
+    pickMeaning,
+    pendingFeedback,
+    confirmFeedback,
+  ]);
 
   const requestLeaveStudy = useCallback(() => {
     if (inQuiz) setLeaveOpen(true);
@@ -568,60 +759,73 @@ export function StudySessionClient() {
       </Card>
 
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 space-y-1">
-              <p className="sr-only" aria-live="polite" aria-atomic="true">
-                {idx + 1}語目、単語 {current.term}
+        {pendingFeedback ? (
+          <FeedbackCard
+            word={current}
+            pending={pendingFeedback}
+            posLabel={posLabel}
+            ratingBusy={ratingBusy}
+            onConfirm={confirmFeedback}
+            onSpeak={() => speakEnglish(current.term)}
+          />
+        ) : (
+          <>
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1">
+                  <p className="sr-only" aria-live="polite" aria-atomic="true">
+                    {idx + 1}語目、単語 {current.term}
+                  </p>
+                  <CardTitle className="break-words text-3xl font-semibold tracking-tight text-foreground">
+                    {current.term}
+                  </CardTitle>
+                  {current.partOfSpeech ? (
+                    <p className="text-xs text-muted-foreground">
+                      {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
+                    </p>
+                  ) : null}
+                  {current.tags && current.tags.length > 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      {current.tags.join(" · ")}
+                    </p>
+                  ) : null}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 rounded-xl"
+                  aria-label="英語を読み上げ"
+                  onClick={() => speakEnglish(current.term)}
+                >
+                  <Volume2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-2.5">
+                {meaningOptions.map((label, i) => (
+                  <Button
+                    key={`${current.id}-${i}`}
+                    type="button"
+                    variant="outline"
+                    className="h-auto min-h-12 justify-start whitespace-normal rounded-xl px-3 py-3 text-left text-sm font-medium leading-snug"
+                    disabled={ratingBusy}
+                    onClick={() => pickMeaning(label)}
+                  >
+                    <span className="mr-2 shrink-0 tabular-nums text-muted-foreground">
+                      {i + 1}.
+                    </span>
+                    <span>{label}</span>
+                  </Button>
+                ))}
+              </div>
+              <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
+                キー 1〜4 でも選べます
               </p>
-              <CardTitle className="break-words text-3xl font-semibold tracking-tight text-foreground">
-                {current.term}
-              </CardTitle>
-              {current.partOfSpeech ? (
-                <p className="text-xs text-muted-foreground">
-                  {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
-                </p>
-              ) : null}
-              {current.tags && current.tags.length > 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  {current.tags.join(" · ")}
-                </p>
-              ) : null}
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="shrink-0 rounded-xl"
-              aria-label="英語を読み上げ"
-              onClick={() => speakEnglish(current.term)}
-            >
-              <Volume2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-2.5">
-            {meaningOptions.map((label, i) => (
-              <Button
-                key={`${current.id}-${i}`}
-                type="button"
-                variant="outline"
-                className="h-auto min-h-12 justify-start whitespace-normal rounded-xl px-3 py-3 text-left text-sm font-medium leading-snug"
-                disabled={ratingBusy}
-                onClick={() => pickMeaning(label)}
-              >
-                <span className="mr-2 shrink-0 tabular-nums text-muted-foreground">
-                  {i + 1}.
-                </span>
-                <span>{label}</span>
-              </Button>
-            ))}
-          </div>
-          <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
-            キー 1〜4 でも選べます
-          </p>
-        </CardContent>
+            </CardContent>
+          </>
+        )}
       </Card>
       </Screen>
 
@@ -630,7 +834,9 @@ export function StudySessionClient() {
           <DialogHeader>
             <DialogTitle>学習を中断しますか？</DialogTitle>
             <DialogDescription>
-              未評価の語が残っています。このまま戻ると、ホームの「続きから」で同じ位置から再開できます。
+              {pendingFeedback
+                ? "結果確認中の問題があります。このまま戻ると、ホームの「続きから」で同じ位置から再開できます。"
+                : "未評価の語が残っています。このまま戻ると、ホームの「続きから」で同じ位置から再開できます。"}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:flex-row sm:justify-end">
