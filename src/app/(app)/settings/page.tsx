@@ -150,6 +150,20 @@ export default function SettingsPage() {
               onCheckedChange={(checked) => void updatePrefs({ showExample: Boolean(checked) })}
             />
           </div>
+          <Separator />
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium">問題表示時に英語を自動再生</div>
+              <div className="text-xs text-muted-foreground">
+                4択が出たタイミングで1回だけ読み上げます（既定はオフ）
+              </div>
+            </div>
+            <Switch
+              checked={prefs?.autoSpeakEnglish ?? false}
+              disabled={prefs == null}
+              onCheckedChange={(checked) => void updatePrefs({ autoSpeakEnglish: Boolean(checked) })}
+            />
+          </div>
         </CardContent>
       </Card>
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">

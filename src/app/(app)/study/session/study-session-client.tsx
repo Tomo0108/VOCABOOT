@@ -313,6 +313,7 @@ export function StudySessionClient() {
     wasCorrect: boolean;
   } | null>(null);
   const restoredRef = useRef(false);
+  const autoSpokenForQuestionRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -450,6 +451,10 @@ export function StudySessionClient() {
   }, [loading, words, pathname]);
 
   useEffect(() => {
+    autoSpokenForQuestionRef.current = null;
+  }, [words]);
+
+  useEffect(() => {
     if (loading || words.length === 0 || idx >= words.length) return;
     const search = typeof window !== "undefined" ? window.location.search : "";
     void saveSessionCheckpoint({
@@ -468,6 +473,20 @@ export function StudySessionClient() {
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [inQuiz]);
+
+  useEffect(() => {
+    if (loading || !current || pendingFeedback) return;
+    if (prefs?.autoSpeakEnglish !== true) return;
+    if (autoSpokenForQuestionRef.current === current.id) return;
+    autoSpokenForQuestionRef.current = current.id;
+    speakEnglish(current.term);
+  }, [
+    loading,
+    current?.id,
+    current?.term,
+    pendingFeedback,
+    prefs?.autoSpeakEnglish,
+  ]);
 
   const applyRatingAndAdvance = useCallback(async () => {
     if (!current || ratingBusy || !pendingFeedback) return;
@@ -570,6 +589,7 @@ export function StudySessionClient() {
       ? `&seed=${encodeURIComponent(mixSeedState)}`
       : "";
   const mixNextHref = `/study/session?mode=mix&n=${n}&offset=${offset + words.length}${seedQ}`;
+  const sessionScreenTitle = mode === "review" ? "復習" : "学習";
 
   const posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string> = {
     n: "名",
@@ -584,7 +604,7 @@ export function StudySessionClient() {
   if (loading) {
     return (
       <Screen
-        title="学習"
+        title={sessionScreenTitle}
         subtitle="語リストを準備しています。"
         icon={modeIcon}
         backHref="/study"
@@ -611,7 +631,7 @@ export function StudySessionClient() {
 
     return (
       <Screen
-        title="学習"
+        title={sessionScreenTitle}
         subtitle={emptyMsg}
         icon={modeIcon}
         backHref="/study"
@@ -805,7 +825,7 @@ export function StudySessionClient() {
   return (
     <>
       <Screen
-        title="学習"
+        title={sessionScreenTitle}
         subtitle="表示された和訳のうち、正しいものを1つ選びます。各問のあとに正誤と例文を確認でき、セット終了後にもう一度振り返れます。"
         icon={modeIcon}
         renderBack={
