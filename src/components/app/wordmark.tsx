@@ -23,10 +23,21 @@ export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
       >
         <span className="font-bold">Voca</span>
         {size === "hero" ? (
-          <span className="font-bold text-primary">
+          <span className="inline-flex items-baseline font-bold text-primary">
             b
-            <span className="vocaboot-boot-o vocaboot-boot-o--1">o</span>
-            <span className="vocaboot-boot-o vocaboot-boot-o--2">o</span>
+            <span className="vocaboot-eyes" aria-hidden>
+              <span className="vocaboot-eye">
+                <span className="vocaboot-eye__ball">
+                  <span className="vocaboot-eye__pupil" />
+                </span>
+              </span>
+              <span className="vocaboot-eye vocaboot-eye--late">
+                <span className="vocaboot-eye__ball">
+                  <span className="vocaboot-eye__pupil" />
+                </span>
+              </span>
+            </span>
+            <span className="sr-only">oo</span>
             t
           </span>
         ) : (

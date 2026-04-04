@@ -135,44 +135,95 @@
   }
 }
 
-/** ホームロゴ Vocaboot の「oo」— ボールのように縦に跳ねる */
-@keyframes vocaboot-boot-o-bounce {
+/** ホームロゴ boot の「oo」— ポップな目＋まばたき */
+@keyframes vocaboot-eye-blink {
   0%,
+  88%,
   100% {
-    transform: translate3d(0, 0, 0);
+    transform: scaleY(1);
   }
-  16% {
-    transform: translate3d(0, -0.4em, 0);
+  89% {
+    transform: scaleY(0.12);
   }
-  32% {
-    transform: translate3d(0, 0, 0);
+  90% {
+    transform: scaleY(1);
   }
-  46% {
-    transform: translate3d(0, -0.15em, 0);
+  91% {
+    transform: scaleY(0.12);
   }
-  58% {
-    transform: translate3d(0, 0, 0);
+  92%,
+  96% {
+    transform: scaleY(1);
   }
-  68% {
-    transform: translate3d(0, -0.06em, 0);
+  97% {
+    transform: scaleY(0.12);
   }
-  78% {
-    transform: translate3d(0, 0, 0);
+  98% {
+    transform: scaleY(1);
   }
 }
 
-.vocaboot-boot-o {
-  display: inline-block;
-  transform-origin: 50% 100%;
-  animation: vocaboot-boot-o-bounce 1.35s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+.vocaboot-eyes {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.1em;
+  height: 0.85em;
+  margin: 0 0.02em;
+  vertical-align: -0.12em;
 }
 
-.vocaboot-boot-o--1 {
-  animation-delay: 0s;
+.vocaboot-eye {
+  display: flex;
+  width: 0.5em;
+  height: 0.5em;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center 55%;
+  animation: vocaboot-eye-blink 3.8s ease-in-out infinite;
 }
 
-.vocaboot-boot-o--2 {
-  animation-delay: 0.26s;
+.vocaboot-eye--late {
+  animation-delay: 0.12s;
+}
+
+.vocaboot-eye__ball {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  overflow: hidden;
+  border: 0.1em solid var(--primary);
+  border-radius: 50%;
+  background: oklch(0.99 0.01 90);
+  box-shadow:
+    inset 0 -0.06em 0 0 color-mix(in oklab, var(--primary) 18%, transparent),
+    0 0.02em 0 color-mix(in oklab, var(--primary) 25%, transparent);
+}
+
+.dark .vocaboot-eye__ball {
+  background: oklch(0.97 0.02 90);
+}
+
+.vocaboot-eye__pupil {
+  position: relative;
+  width: 44%;
+  height: 44%;
+  border-radius: 50%;
+  background: var(--foreground);
+  transform: translate(6%, 8%);
+}
+
+.vocaboot-eye__pupil::after {
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: oklch(1 0 0 / 0.92);
+  content: "";
 }
 
 @media (prefers-reduced-motion: reduce) {
