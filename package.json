@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "icons:export": "node scripts/export-pwa-icons.mjs",
     "data:tsl": "node scripts/build-tsl.mjs",
     "data:wiktionary:ja": "node scripts/enrich-wiktionary-ja.mjs",
     "data:fill-ja": "node scripts/fill-missing-ja-google.mjs"
@@ -35,6 +36,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

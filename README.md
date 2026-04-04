@@ -36,6 +36,7 @@ npm run dev
 | `npm run build` | 本番ビルド |
 | `npm run start` | 本番サーバー（ビルド後） |
 | `npm run lint` | ESLint |
+| `npm run icons:export` | `public/icon.svg` から PWA 用 PNG を再生成（`docs/pwa-icon-design.md` 参照） |
 
 ### データ生成スクリプト（メンテ用）
 
