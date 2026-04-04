@@ -42,7 +42,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn, focusRingLink } from "@/lib/utils";
-import { inferSvoc, splitExampleAroundTerm } from "@/lib/example-svoc";
+import { splitExampleAroundTerm } from "@/lib/example-svoc";
 
 type Mode = "new" | "mix" | "review";
 
@@ -121,7 +121,6 @@ function WordAnswerExplainer({
   posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string>;
 }) {
   const correctMeaning = word.meaningJa?.trim() || "—";
-  const svoc = word.exampleEn ? inferSvoc(word, word.exampleEn) : null;
   const ex = splitExampleAroundTerm(
     word.exampleEn ?? "",
     word.term,
@@ -174,42 +173,6 @@ function WordAnswerExplainer({
       ) : (
         <p className="text-sm text-muted-foreground">この語には例文が登録されていません。</p>
       )}
-
-      {svoc ? (
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">SVOC（自動推定・参考）</p>
-          <dl className="space-y-2.5 rounded-xl border border-border/60 bg-background/80 px-3 py-3 text-sm">
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                S（主語）
-              </dt>
-              <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.s}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                V（動詞）
-              </dt>
-              <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.v}</dd>
-            </div>
-            {svoc.o ? (
-              <div>
-                <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  O（目的語）
-                </dt>
-                <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.o}</dd>
-              </div>
-            ) : null}
-            {svoc.c ? (
-              <div>
-                <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {word.partOfSpeech === "adv" ? "該当語（副詞）" : "C（補語）"}
-                </dt>
-                <dd className="mt-0.5 leading-relaxed text-foreground">{svoc.c}</dd>
-              </div>
-            ) : null}
-          </dl>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -717,7 +680,7 @@ export function StudySessionClient() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">振り返り</CardTitle>
             <p className="text-xs text-muted-foreground">
-              各問題を開くと、和訳・例文・SVOCを確認できます。
+              各問題を開くと、和訳と例文を確認できます。
             </p>
           </CardHeader>
           <CardContent className="space-y-2">
