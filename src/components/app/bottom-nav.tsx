@@ -17,7 +17,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/90 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto grid max-w-md grid-cols-4 gap-1 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
+      <div className="mx-auto grid max-w-md grid-cols-4 gap-1 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.875rem)]">
         {items.map(({ href, label, icon: Icon }) => {
           const active =
             pathname === href || (href !== "/" && pathname?.startsWith(href));
