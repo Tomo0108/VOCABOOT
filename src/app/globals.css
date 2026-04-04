@@ -138,91 +138,84 @@
 /** ホームロゴ boot の「oo」— ポップな目＋まばたき */
 @keyframes vocaboot-eye-blink {
   0%,
-  88%,
+  86%,
   100% {
     transform: scaleY(1);
   }
-  89% {
-    transform: scaleY(0.12);
+  87% {
+    transform: scaleY(0.08);
+  }
+  88.5% {
+    transform: scaleY(1);
   }
   90% {
-    transform: scaleY(1);
+    transform: scaleY(0.08);
   }
-  91% {
-    transform: scaleY(0.12);
-  }
-  92%,
-  96% {
-    transform: scaleY(1);
-  }
-  97% {
-    transform: scaleY(0.12);
-  }
-  98% {
+  91.5% {
     transform: scaleY(1);
   }
 }
 
 .vocaboot-eyes {
   display: inline-flex;
-  align-items: flex-end;
-  gap: 0.1em;
-  height: 0.85em;
+  align-items: center;
+  gap: 0.06em;
+  height: 1em;
   margin: 0 0.02em;
-  vertical-align: -0.12em;
+  vertical-align: baseline;
 }
 
 .vocaboot-eye {
   display: flex;
-  width: 0.5em;
-  height: 0.5em;
+  width: 0.62em;
+  height: 0.62em;
   flex: none;
   align-items: center;
   justify-content: center;
-  transform-origin: center 55%;
-  animation: vocaboot-eye-blink 3.8s ease-in-out infinite;
+  transform-origin: center center;
+  animation: vocaboot-eye-blink 3.6s ease-in-out infinite;
 }
 
 .vocaboot-eye--late {
-  animation-delay: 0.12s;
+  animation-delay: 0.1s;
 }
 
 .vocaboot-eye__ball {
   position: relative;
-  display: grid;
+  display: flex;
   width: 100%;
   height: 100%;
-  place-items: center;
+  align-items: flex-end;
+  justify-content: center;
   overflow: hidden;
-  border: 0.1em solid var(--primary);
   border-radius: 50%;
-  background: oklch(0.99 0.01 90);
+  background: #fff;
   box-shadow:
-    inset 0 -0.06em 0 0 color-mix(in oklab, var(--primary) 18%, transparent),
-    0 0.02em 0 color-mix(in oklab, var(--primary) 25%, transparent);
+    0 0.02em 0.06em oklch(0 0 0 / 0.12),
+    inset 0 -0.02em 0.04em oklch(0 0 0 / 0.06);
 }
 
 .dark .vocaboot-eye__ball {
-  background: oklch(0.97 0.02 90);
+  background: #f3f3f3;
 }
 
 .vocaboot-eye__pupil {
   position: relative;
-  width: 44%;
-  height: 44%;
+  width: 62%;
+  height: 62%;
   border-radius: 50%;
-  background: var(--foreground);
-  transform: translate(6%, 8%);
+  background: oklch(0.14 0 0);
+  margin-bottom: 8%;
 }
 
 .vocaboot-eye__pupil::after {
   position: absolute;
-  top: 12%;
-  left: 18%;
-  width: 38%;
-  height: 38%;
+  top: 14%;
+  left: 20%;
+  width: 34%;
+  height: 34%;
   border-radius: 50%;
-  background: oklch(1 0 0 / 0.92);
+  background: oklch(1 0 0 / 0.95);
   content: "";
 }
 
