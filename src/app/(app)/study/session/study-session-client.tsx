@@ -18,7 +18,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Gauge,
+  Shuffle,
   Home,
   RotateCcw,
   Sparkles,
@@ -580,7 +580,7 @@ export function StudySessionClient() {
     ) : mode === "new" ? (
       <Sparkles className="h-5 w-5" />
     ) : (
-      <Gauge className="h-5 w-5" />
+      <Shuffle className="h-5 w-5" />
     );
 
   const mixHasNext = mode === "mix" && offset + words.length < totalWords;
