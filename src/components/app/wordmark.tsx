@@ -31,7 +31,7 @@ export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
                   <span className="vocaboot-eye__pupil" />
                 </span>
               </span>
-              <span className="vocaboot-eye vocaboot-eye--late">
+              <span className="vocaboot-eye">
                 <span className="vocaboot-eye__ball">
                   <span className="vocaboot-eye__pupil" />
                 </span>
