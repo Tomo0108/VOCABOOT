@@ -189,33 +189,49 @@
   justify-content: center;
   overflow: hidden;
   border-radius: 50%;
-  background: #fff;
+  background: linear-gradient(
+    160deg,
+    oklch(1 0 0) 30%,
+    oklch(0.94 0 0) 100%
+  );
   box-shadow:
-    0 0.02em 0.06em oklch(0 0 0 / 0.12),
-    inset 0 -0.02em 0.04em oklch(0 0 0 / 0.06);
+    0 0.03em 0.08em oklch(0 0 0 / 0.18),
+    0 0.01em 0.02em oklch(0 0 0 / 0.10),
+    inset 0 0.06em 0.08em oklch(1 0 0 / 0.6),
+    inset 0 -0.04em 0.06em oklch(0 0 0 / 0.08);
 }
 
 .dark .vocaboot-eye__ball {
-  background: #f3f3f3;
+  background: linear-gradient(
+    160deg,
+    oklch(0.96 0 0) 30%,
+    oklch(0.88 0 0) 100%
+  );
 }
 
 .vocaboot-eye__pupil {
   position: relative;
-  width: 76%;
-  height: 76%;
+  width: 52%;
+  height: 52%;
   border-radius: 50%;
-  background: oklch(0.14 0 0);
-  margin-bottom: 4%;
+  background: radial-gradient(
+    circle at 38% 36%,
+    oklch(0.22 0 0) 0%,
+    oklch(0.08 0 0) 100%
+  );
+  margin-bottom: 8%;
+  box-shadow: 0 0.01em 0.03em oklch(0 0 0 / 0.2);
 }
 
 .vocaboot-eye__pupil::after {
   position: absolute;
-  top: 10%;
-  left: 16%;
-  width: 38%;
-  height: 38%;
+  top: 12%;
+  left: 18%;
+  width: 30%;
+  height: 30%;
   border-radius: 50%;
-  background: oklch(1 0 0 / 0.97);
+  background: oklch(1 0 0 / 0.35);
+  filter: blur(0.01em);
   content: "";
 }
 
