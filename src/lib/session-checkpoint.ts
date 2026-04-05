@@ -3,8 +3,7 @@ import { getStored, setStored } from "@/lib/storage";
 
 export const SESSION_CHECKPOINT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
-/** 表示名は Vocaboost だが、既存ユーザーの IndexedDB 互換のため接頭辞は維持 */
-const KEY = "vocaboot.session.checkpoint.v1";
+const KEY = "vocaboost.session.checkpoint.v1";
 
 export type SessionCheckpoint = {
   pathname: string;

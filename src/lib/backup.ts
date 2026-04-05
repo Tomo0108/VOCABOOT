@@ -9,8 +9,8 @@ type BackupPayload = {
   preferences: AppPreferences;
 };
 
-/** progress.ts と同一（バックアップ検証用）。接頭辞は IndexedDB 互換のため維持 */
-const PROGRESS_KEY = "vocaboot.progress.v1";
+/** progress.ts と同一（バックアップ検証用） */
+const PROGRESS_KEY = "vocaboost.progress.v1";
 
 export async function exportBackup(): Promise<string> {
   const progress = await getProgress();

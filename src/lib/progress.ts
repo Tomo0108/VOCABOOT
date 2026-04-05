@@ -4,8 +4,7 @@ import { getAllWords } from "@/lib/vocab";
 
 export type WordProgress = Record<string, SrsState>;
 
-/** 表示名は Vocaboost だが、既存ユーザーの IndexedDB 互換のため接頭辞は維持 */
-const KEY = "vocaboot.progress.v1";
+const KEY = "vocaboost.progress.v1";
 
 export async function getProgress(): Promise<WordProgress> {
   return await getStored<WordProgress>(KEY, {});
