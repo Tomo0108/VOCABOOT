@@ -836,7 +836,7 @@ export const TOEIC_WORDS: ToeicWord[] = [
   { id: "tsl_nitrogen", term: "nitrogen", meaningJa: "窒素", partOfSpeech: "n", exampleEn: "Nitrogen is used in the production of certain chemicals.", exampleJa: "窒素は一部の化学物質の製造に使用される。" },
   { id: "tsl_nominate", term: "nominate", meaningJa: "推薦する、指名する", partOfSpeech: "v", exampleEn: "She was nominated for the employee of the year award.", exampleJa: "彼女は今年の従業員賞に推薦された。" },
   { id: "tsl_nomination", term: "nomination", meaningJa: "推薦、指名", partOfSpeech: "n", exampleEn: "Nominations for the board position are due by Friday.", exampleJa: "取締役ポジションの推薦は金曜日までに提出する必要がある。" },
-  { id: "tsl_nominee", term: "nominee", meaningJa: "推薦された人、ノミニー", partOfSpeech: "n", exampleEn: "All nominees will be notified by email.", exampleJa: "全ての被推薦者にはメールで通知される。" },
+  { id: "tsl_nominee", term: "nominee", meaningJa: "（賞などの）候補者、指名された人", partOfSpeech: "n", exampleEn: "All nominees will be notified by email.", exampleJa: "全候補者にメールで通知される。" },
   { id: "tsl_nonetheless", term: "nonetheless", meaningJa: "それにもかかわらず", partOfSpeech: "adv", exampleEn: "The project was challenging; nonetheless, the team delivered on time.", exampleJa: "プロジェクトは困難だったが、それにもかかわらずチームは期限通りに仕上げた。" },
   { id: "tsl_nonprofit", term: "nonprofit", meaningJa: "非営利の", partOfSpeech: "adj", exampleEn: "The company supports several nonprofit organizations through donations.", exampleJa: "会社は寄付を通じていくつかの非営利団体を支援している。" },
   { id: "tsl_notable", term: "notable", meaningJa: "注目すべき、著名な", partOfSpeech: "adj", exampleEn: "The report highlights several notable achievements.", exampleJa: "報告書はいくつかの注目すべき業績を強調している。" },

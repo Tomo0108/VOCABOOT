@@ -617,7 +617,7 @@ const lines = [
   w("nitrogen","nitrogen","窒素","n","Nitrogen is used in the production of certain chemicals.","窒素は一部の化学物質の製造に使用される。"),
   w("nominate","nominate","推薦する、指名する","v","She was nominated for the employee of the year award.","彼女は今年の従業員賞に推薦された。"),
   w("nomination","nomination","推薦、指名","n","Nominations for the board position are due by Friday.","取締役ポジションの推薦は金曜日までに提出する必要がある。"),
-  w("nominee","nominee","推薦された人、ノミニー","n","All nominees will be notified by email.","全ての被推薦者にはメールで通知される。"),
+  w("nominee","nominee","（賞などの）候補者、指名された人","n","All nominees will be notified by email.","全候補者にメールで通知される。"),
   w("nonetheless","nonetheless","それにもかかわらず","adv","The project was challenging; nonetheless, the team delivered on time.","プロジェクトは困難だったが、それにもかかわらずチームは期限通りに仕上げた。"),
   w("nonprofit","nonprofit","非営利の","adj","The company supports several nonprofit organizations through donations.","会社は寄付を通じていくつかの非営利団体を支援している。"),
   w("notable","notable","注目すべき、著名な","adj","The report highlights several notable achievements.","報告書はいくつかの注目すべき業績を強調している。"),

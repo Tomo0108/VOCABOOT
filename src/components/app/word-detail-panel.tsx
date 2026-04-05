@@ -5,11 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import type { ToeicWord } from "@/lib/vocab";
-import {
-  difficultyLabel,
-  getWordCategoryLabel,
-  getWordDifficulty,
-} from "@/lib/word-meta";
+import { difficultyLabel, getWordDifficulty } from "@/lib/word-meta";
 import { POS_LABEL } from "@/lib/part-of-speech-labels";
 import { Volume2 } from "lucide-react";
 
@@ -39,9 +35,6 @@ export function WordDetailPanel({
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary" className="font-normal">
-          {getWordCategoryLabel(word)}
-        </Badge>
         <Badge variant="outline" className="font-normal tabular-nums">
           難易度 {d}（{difficultyLabel(d)}）
         </Badge>
@@ -61,7 +54,9 @@ export function WordDetailPanel({
             <p className="text-sm text-muted-foreground">
               {POS_LABEL[word.partOfSpeech] ?? word.partOfSpeech}
             </p>
-          ) : null}
+          ) : (
+            <p className="text-sm text-muted-foreground">品詞未分類</p>
+          )}
         </div>
         <Button
           type="button"

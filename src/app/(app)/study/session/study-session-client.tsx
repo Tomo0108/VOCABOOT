@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn, focusRingLink } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
-import { getWordCategoryLabel } from "@/lib/word-meta";
+import { POS_LABEL } from "@/lib/part-of-speech-labels";
 
 type Mode = "new" | "mix" | "review";
 
@@ -613,15 +613,7 @@ export function StudySessionClient() {
         ? "学習（新規）"
         : "学習（ミックス）";
 
-  const posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string> = {
-    n: "名",
-    v: "動",
-    adj: "形",
-    adv: "副",
-    prep: "前",
-    conj: "接",
-    phr: "句",
-  };
+  const posLabel = POS_LABEL;
 
   if (loading) {
     return (
@@ -910,15 +902,9 @@ export function StudySessionClient() {
                   {current.partOfSpeech ? (
                     <p className="text-xs text-muted-foreground">
                       {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
-                      <span className="text-muted-foreground/70">
-                        {" · "}
-                        {getWordCategoryLabel(current)}
-                      </span>
                     </p>
                   ) : (
-                    <p className="text-xs text-muted-foreground">
-                      {getWordCategoryLabel(current)}
-                    </p>
+                    <p className="text-xs text-muted-foreground">品詞未分類</p>
                   )}
                   {current.tags && current.tags.length > 0 ? (
                     <p className="text-xs text-muted-foreground">
