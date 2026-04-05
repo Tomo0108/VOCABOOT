@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "icons:export": "node scripts/export-pwa-icons.mjs",
+    "audit:katakana-meanings": "node scripts/scan-katakana-in-meanings.mjs",
     "data:tsl": "node scripts/build-tsl.mjs",
     "data:wiktionary:ja": "node scripts/enrich-wiktionary-ja.mjs",
     "data:fill-ja": "node scripts/fill-missing-ja-google.mjs"
