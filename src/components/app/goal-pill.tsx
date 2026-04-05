@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { VOCABOOT_TARGET_LABEL } from "@/lib/product";
+import { VOCABOOST_TARGET_LABEL } from "@/lib/product";
 
 /** 全画面で共通の「目標」表示（TOEIC 800点ウォーターフォール） */
 export function GoalPill({ className }: { className?: string }) {
@@ -14,7 +14,7 @@ export function GoalPill({ className }: { className?: string }) {
       <span className="mx-1.5 text-primary/50" aria-hidden>
         ·
       </span>
-      <span>{VOCABOOT_TARGET_LABEL}</span>
+      <span>{VOCABOOST_TARGET_LABEL}</span>
     </p>
   );
 }

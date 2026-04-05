@@ -1,4 +1,4 @@
-# Vocaboot
+# Vocaboost
 
 TOEIC 頻出単語をオフラインで反復できる、ブラウザ向けの学習アプリ（PWA）です。進捗・設定は端末内（IndexedDB）に保存されます。
 

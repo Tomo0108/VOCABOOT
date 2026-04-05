@@ -94,7 +94,7 @@ async function fetchWiktionaryWikitext(title) {
     }).toString();
 
   const res = await fetch(url, {
-    headers: { "user-agent": "toeic-vocaboot/0.1 (dataset builder)" },
+    headers: { "user-agent": "toeic-vocaboost/0.1 (dataset builder)" },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();

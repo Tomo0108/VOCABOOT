@@ -1,4 +1,4 @@
-# Vocaboot UX 改善バックログ（100）
+# Vocaboost UX 改善バックログ（100）
 
 開発時に DOM に出る `<nextjs-portal>` は Next.js の開発用オーバーレイ用ノードです。`next.config.ts` の `devIndicators: false` で画面隅の Dev インジケーターを消せます。`next start` の本番ビルドではユーザー向け DOM に載りません。エラー時オーバーレイ用の portal は開発時に残り得ます。
 

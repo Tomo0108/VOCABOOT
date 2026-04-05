@@ -5,7 +5,7 @@ type AppWordmarkProps = {
   size?: "md" | "lg" | "hero";
 };
 
-/** アプリ名は Vocaboot（語彙 + boot）。ゴールドで後半を強調 */
+/** アプリ名は Vocaboost（語彙 + boost）。ゴールドで後半を強調 */
 export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
   const text =
     size === "hero"
@@ -22,7 +22,7 @@ export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
         )}
       >
         <span className="font-bold">Voca</span>
-        <span className="font-bold text-primary">boot</span>
+        <span className="font-bold text-primary">boost</span>
       </p>
     </div>
   );

@@ -1,5 +1,6 @@
 import { getStored, setStored } from "@/lib/storage";
 
+/** 表示名は Vocaboost だが、既存ユーザーの IndexedDB 互換のため接頭辞は維持 */
 const KEY = "vocaboot.prefs.v1";
 
 export type AppPreferences = {

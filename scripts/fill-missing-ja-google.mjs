@@ -19,7 +19,7 @@ async function translateEnJa(term) {
     "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ja&dt=t&q=" +
     encodeURIComponent(term);
   const res = await fetch(u, {
-    headers: { "user-agent": "toeic-vocaboot/0.1 (dataset builder)" },
+    headers: { "user-agent": "toeic-vocaboost/0.1 (dataset builder)" },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();

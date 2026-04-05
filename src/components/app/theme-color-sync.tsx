@@ -14,12 +14,12 @@ export function ThemeColorMetaSync() {
     if (!resolvedTheme) return;
     const content = resolvedTheme === "dark" ? META_DARK : META_LIGHT;
     let el = document.querySelector(
-      'meta[name="theme-color"][data-vocaboot-sync]'
+      'meta[name="theme-color"][data-vocaboost-sync]'
     ) as HTMLMetaElement | null;
     if (!el) {
       el = document.createElement("meta");
       el.setAttribute("name", "theme-color");
-      el.setAttribute("data-vocaboot-sync", "1");
+      el.setAttribute("data-vocaboost-sync", "1");
       document.head.appendChild(el);
     }
     el.setAttribute("content", content);

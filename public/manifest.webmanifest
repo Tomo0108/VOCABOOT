@@ -1,6 +1,6 @@
 {
-  "name": "Vocaboot",
-  "short_name": "Vocaboot",
+  "name": "Vocaboost",
+  "short_name": "Vocaboost",
   "description": "TOEIC 頻出単語をオフラインで反復。通勤のスキマ時間に。",
   "start_url": "/",
   "display": "standalone",

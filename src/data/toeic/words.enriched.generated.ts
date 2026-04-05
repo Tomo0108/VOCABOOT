@@ -1,4 +1,4 @@
-// VOCABOOT 単語データベース v2
+// VOCABOOST 単語データベース v2
 // TOEIC 800点レベル向け。品詞・訳語・例文はビジネス／職場／日常文脈に統一。
 
 export type ToeicWord = {

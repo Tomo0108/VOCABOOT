@@ -4,7 +4,7 @@ import { Geist, Geist_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/app/providers";
-import { VOCABOOT_DESCRIPTION } from "@/lib/product";
+import { VOCABOOST_DESCRIPTION } from "@/lib/product";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,9 +24,9 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "Vocaboot — TOEIC 単語",
-  description: VOCABOOT_DESCRIPTION,
-  applicationName: "Vocaboot",
+  title: "Vocaboost — TOEIC 単語",
+  description: VOCABOOST_DESCRIPTION,
+  applicationName: "Vocaboost",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Vocaboot",
+    title: "Vocaboost",
   },
 };
 
