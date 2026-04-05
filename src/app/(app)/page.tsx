@@ -187,24 +187,42 @@ export default function Home() {
         aria-busy={statsLoading}
         aria-label="学習状況"
       >
-        <div className="rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm">
+        <Link
+          href="/words?filter=due"
+          className={cn(
+            focusRingLink,
+            "rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm transition-colors hover:bg-muted/40"
+          )}
+        >
           <p className="text-xs font-medium text-muted-foreground">
             復習待ち
           </p>
           <StatFigure loading={statsLoading} value={due} />
-        </div>
-        <div className="rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm">
+        </Link>
+        <Link
+          href="/words?filter=learned"
+          className={cn(
+            focusRingLink,
+            "rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm transition-colors hover:bg-muted/40"
+          )}
+        >
           <p className="text-xs font-medium text-muted-foreground">
             学習済み
           </p>
           <StatFigure loading={statsLoading} value={touched} />
-        </div>
-        <div className="rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm">
+        </Link>
+        <Link
+          href="/words?filter=all"
+          className={cn(
+            focusRingLink,
+            "rounded-2xl border border-border/80 bg-card px-3 py-3 text-center shadow-sm transition-colors hover:bg-muted/40"
+          )}
+        >
           <p className="text-xs font-medium text-muted-foreground">
             収録語数
           </p>
           <StatFigure loading={statsLoading} value={total} />
-        </div>
+        </Link>
       </div>
     </div>
   );

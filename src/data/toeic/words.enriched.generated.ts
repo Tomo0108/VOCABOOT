@@ -9,6 +9,8 @@ export type ToeicWord = {
   exampleEn?: string;
   exampleJa?: string;
   tags?: string[];
+  /** 1=やさしい … 3=難しい（未指定時は語長・品詞から推定） */
+  difficulty?: 1 | 2 | 3;
 };
 
 export const TOEIC_WORDS: ToeicWord[] = [

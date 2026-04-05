@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getAllWords, type ToeicWord } from "@/lib/vocab";
 import { getDueWordIds, getProgress, rateWord } from "@/lib/progress";
+import {
+  orderSessionCandidates,
+  reshuffleRemainingForDifficulty,
+} from "@/lib/session-order";
 import { getPreferences, type AppPreferences } from "@/lib/preferences";
 import { Screen } from "@/components/app/screen";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +47,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn, focusRingLink } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
+import { getWordCategoryLabel } from "@/lib/word-meta";
 
 type Mode = "new" | "mix" | "review";
 
@@ -53,6 +58,7 @@ async function loadSessionWords(
   mixSeed: string | null
 ): Promise<ToeicWord[]> {
   const all = getAllWords();
+  const progress = await getProgress();
   if (mode === "review") {
     const ids = await getDueWordIds();
     const map = new Map(all.map((w) => [w.id, w]));
@@ -60,16 +66,17 @@ async function loadSessionWords(
       .slice(0, n)
       .map((id) => map.get(id))
       .filter((w): w is ToeicWord => Boolean(w));
-    return shuffleRandom(list);
+    return orderSessionCandidates(list, progress);
   }
   if (mode === "new") {
-    const progress = await getProgress();
     const unseen = all.filter((w) => !progress[w.id]);
-    return shuffleRandom(unseen).slice(0, n);
+    const picked = shuffleRandom(unseen).slice(0, n);
+    return orderSessionCandidates(picked, progress);
   }
   if (!mixSeed) return [];
   const order = shuffleWithSeed(all, mixSeed);
-  return order.slice(offset, offset + n);
+  const slice = order.slice(offset, offset + n);
+  return orderSessionCandidates(slice, progress);
 }
 
 function speakEnglish(term: string) {
@@ -497,18 +504,28 @@ export function StudySessionClient() {
         compactSchedule: prefs?.compactSchedule ?? false,
       });
       setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
-      setSessionResults((prev) => [
-        ...prev,
+      const nextResults = [
+        ...sessionResults,
         { word: current, wasCorrect, pickedMeaning },
-      ]);
+      ];
+      const nextIdx = idx + 1;
+      setSessionResults(nextResults);
       setPendingFeedback(null);
-      setIdx((v) => v + 1);
+      setWords((w) => reshuffleRemainingForDifficulty(w, nextIdx, nextResults));
+      setIdx(nextIdx);
     } catch {
       toast.error("記録を保存できませんでした。もう一度お試しください。");
     } finally {
       setRatingBusy(false);
     }
-  }, [current, pendingFeedback, prefs?.compactSchedule, ratingBusy]);
+  }, [
+    current,
+    pendingFeedback,
+    prefs?.compactSchedule,
+    ratingBusy,
+    idx,
+    sessionResults,
+  ]);
 
   const pickMeaning = useCallback(
     (picked: string) => {
@@ -893,8 +910,16 @@ export function StudySessionClient() {
                   {current.partOfSpeech ? (
                     <p className="text-xs text-muted-foreground">
                       {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
+                      <span className="text-muted-foreground/70">
+                        {" · "}
+                        {getWordCategoryLabel(current)}
+                      </span>
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      {getWordCategoryLabel(current)}
+                    </p>
+                  )}
                   {current.tags && current.tags.length > 0 ? (
                     <p className="text-xs text-muted-foreground">
                       {current.tags.join(" · ")}
