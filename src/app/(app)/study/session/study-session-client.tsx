@@ -48,6 +48,7 @@ import {
 import { cn, focusRingLink } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import { POS_LABEL } from "@/lib/part-of-speech-labels";
+import { quizChoiceMeaningJa } from "@/lib/quiz-meaning";
 
 type Mode = "new" | "mix" | "review";
 
@@ -89,7 +90,8 @@ function speakEnglish(term: string) {
 
 /** 正解1＋他語からの誤答3をランダム順で返す */
 function buildMeaningQuizOptions(current: ToeicWord, all: ToeicWord[]): string[] {
-  const correct = current.meaningJa?.trim() || "—";
+  const correctRaw = current.meaningJa?.trim() || "—";
+  const correct = quizChoiceMeaningJa(correctRaw);
   const distractorPool = shuffleRandom(
     [
       ...new Set(
@@ -97,8 +99,9 @@ function buildMeaningQuizOptions(current: ToeicWord, all: ToeicWord[]): string[]
           .filter((w) => w.id !== current.id)
           .map((w) => w.meaningJa?.trim())
           .filter((m): m is string => Boolean(m))
+          .map((m) => quizChoiceMeaningJa(m))
       ),
-    ].filter((m) => m !== correct)
+    ].filter((m) => m !== correct && m.length > 0)
   );
   const wrong: string[] = distractorPool.slice(0, 3);
   while (wrong.length < 3 && distractorPool.length > 0) {
@@ -530,7 +533,7 @@ export function StudySessionClient() {
   const pickMeaning = useCallback(
     (picked: string) => {
       if (!current || ratingBusy || pendingFeedback) return;
-      const correct = current.meaningJa?.trim() || "—";
+      const correct = quizChoiceMeaningJa(current.meaningJa?.trim() || "—");
       const wasCorrect = picked === correct;
       setPendingFeedback({
         rating: wasCorrect ? "good" : "again",
