@@ -58,7 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansJP.variable} vocaboost-rich-motion h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

@@ -238,10 +238,14 @@
   }
 }
 
+/**
+ * 「動きを減らす」対応は Vocaboost 外（html に vocaboost-rich-motion が無い場合）に限定。
+ * 本アプリの html には常に vocaboost-rich-motion を付与し、意図したモーションを維持する。
+ */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not(.vocaboost-rich-motion) *,
+  html:not(.vocaboost-rich-motion) *::before,
+  html:not(.vocaboost-rich-motion) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

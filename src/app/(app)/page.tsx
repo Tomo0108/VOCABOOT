@@ -77,15 +77,15 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
+      <div className="flex w-full justify-center px-1 pt-1 pb-0.5 sm:pt-2">
+        <AppWordmark size="hero" />
+      </div>
+
       <section
         className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm dark:border-border/80"
         aria-labelledby="home-primary-cta"
       >
-        <div className="flex flex-col gap-5 px-5 pb-6 pt-8 sm:px-7 sm:pb-8 sm:pt-10">
-          <header className="space-y-2.5">
-            <AppWordmark size="hero" />
-          </header>
-
+        <div className="flex flex-col gap-5 px-5 pb-6 pt-6 sm:px-7 sm:pb-8 sm:pt-7">
           {resume && resume.wordIds.length > 0 ? (
             <Link
               href={`${resume.pathname}${resume.search}`}
