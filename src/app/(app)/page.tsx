@@ -10,7 +10,6 @@ import {
   type SessionCheckpoint,
 } from "@/lib/session-checkpoint";
 import { AppWordmark } from "@/components/app/wordmark";
-import { GoalPill } from "@/components/app/goal-pill";
 import { ArrowRight, Clock, Play, Sparkles } from "lucide-react";
 
 function StatFigure({
@@ -85,7 +84,6 @@ export default function Home() {
         <div className="flex flex-col gap-5 px-5 pb-6 pt-8 sm:px-7 sm:pb-8 sm:pt-10">
           <header className="space-y-2.5">
             <AppWordmark size="hero" />
-            <GoalPill />
           </header>
 
           {resume && resume.wordIds.length > 0 ? (

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/app/bottom-nav";
+import { RouteTransition } from "@/components/app/route-transition";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,7 +17,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         className="outline-none"
       >
         <div className="mx-auto w-full max-w-md pb-32 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[max(1.5rem,env(safe-area-inset-top))] sm:pl-[max(1.25rem,env(safe-area-inset-left))] sm:pr-[max(1.25rem,env(safe-area-inset-right))]">
-          {children}
+          <RouteTransition>{children}</RouteTransition>
         </div>
       </main>
       <BottomNav />

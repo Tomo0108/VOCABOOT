@@ -24,7 +24,7 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "Vocaboost — TOEIC 単語",
+  title: "Vocaboost",
   description: VOCABOOST_DESCRIPTION,
   applicationName: "Vocaboost",
   manifest: "/manifest.webmanifest",

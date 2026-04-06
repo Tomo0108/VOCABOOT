@@ -9,7 +9,7 @@ type AppWordmarkProps = {
 export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
   const text =
     size === "hero"
-      ? "text-[2rem] font-bold leading-[1.05] tracking-tight sm:text-4xl"
+      ? "text-[2.35rem] font-bold leading-[1.02] tracking-[-0.04em] sm:text-5xl"
       : size === "lg"
         ? "text-2xl sm:text-[1.65rem]"
         : "text-lg font-semibold";
@@ -17,7 +17,7 @@ export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
     <div className={cn("select-none", className)}>
       <p
         className={cn(
-          "font-semibold leading-none tracking-tight text-foreground",
+          "font-semibold leading-none tracking-tight text-foreground drop-shadow-[0_1px_0_rgba(0,0,0,0.08)]",
           text
         )}
       >
