@@ -13,17 +13,30 @@ export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
       : size === "lg"
         ? "text-2xl sm:text-[1.65rem]"
         : "text-lg font-semibold";
-  return (
-    <div className={cn("select-none", className)}>
-      <p
-        className={cn(
-          "font-semibold leading-none tracking-tight text-foreground drop-shadow-[0_1px_0_rgba(0,0,0,0.08)]",
-          text
-        )}
-      >
-        <span className="font-bold">Voca</span>
-        <span className="font-bold text-primary">boost</span>
-      </p>
-    </div>
+
+  const title = (
+    <p
+      className={cn(
+        "font-semibold leading-none tracking-tight text-foreground drop-shadow-[0_1px_0_rgba(0,0,0,0.08)]",
+        text
+      )}
+    >
+      <span className="font-bold">Voca</span>
+      <span className="font-bold text-primary">boost</span>
+    </p>
   );
+
+  if (size === "hero") {
+    return (
+      <div className={cn("select-none", className)}>
+        <div className="wordmark-hero-glow">
+          <div className="wordmark-hero-glow__inner px-3 py-2.5 sm:px-4 sm:py-3">
+            {title}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <div className={cn("select-none", className)}>{title}</div>;
 }

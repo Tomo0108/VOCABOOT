@@ -154,6 +154,73 @@
   .route-transition-shell {
     animation: route-transition-enter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+
+  /**
+   * Vocaboost ヒーローワードマーク: 回転するコニック境界 + 周期的な外光（@property 不要の transform 回転）
+   */
+  .wordmark-hero-glow {
+    position: relative;
+    display: inline-flex;
+    isolation: isolate;
+    border-radius: var(--radius-2xl);
+    padding: 2px;
+    overflow: hidden;
+    animation: wordmark-hero-pulse-glow 2.8s ease-in-out infinite;
+  }
+
+  .wordmark-hero-glow::before {
+    content: "";
+    position: absolute;
+    inset: -150%;
+    z-index: 0;
+    background: conic-gradient(
+      from 0deg,
+      color-mix(in oklab, var(--primary) 90%, transparent),
+      color-mix(in oklab, var(--primary) 25%, transparent) 14%,
+      transparent 28%,
+      transparent 42%,
+      color-mix(in oklab, var(--primary) 55%, transparent) 52%,
+      transparent 62%,
+      color-mix(in oklab, var(--primary) 35%, transparent) 72%,
+      transparent 88%,
+      color-mix(in oklab, var(--primary) 90%, transparent)
+    );
+    animation: wordmark-hero-spin 3.6s linear infinite;
+  }
+
+  .wordmark-hero-glow__inner {
+    position: relative;
+    z-index: 1;
+    display: block;
+    border-radius: calc(var(--radius-2xl) - 2px);
+    background: var(--card);
+    border: 1px solid color-mix(in oklab, var(--primary) 32%, var(--border));
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 8%, transparent);
+  }
+
+  .dark .wordmark-hero-glow__inner {
+    box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 5%, transparent);
+  }
+
+  @keyframes wordmark-hero-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes wordmark-hero-pulse-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent),
+        0 0 12px -2px color-mix(in oklab, var(--primary) 15%, transparent);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--primary) 38%, transparent),
+        0 0 28px 2px color-mix(in oklab, var(--primary) 38%, transparent);
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
