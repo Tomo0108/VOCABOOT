@@ -30,6 +30,7 @@ export function AppWordmark({ className, size = "lg" }: AppWordmarkProps) {
     return (
       <div className={cn("select-none", className)}>
         <div className="wordmark-hero-glow">
+          <span className="wordmark-hero-glow-spin" aria-hidden />
           <div className="wordmark-hero-glow__inner px-3 py-2.5 sm:px-4 sm:py-3">
             {title}
           </div>
