@@ -46,8 +46,7 @@ export default function StudyPage() {
       // columns: days (oldest -> newest), rows: hour 0..23 (top=23 like GH? keep 23 at top)
       const cols = days;
       const rows = 24;
-      const cells: number[] = [];
-      let max = 0;
+      const cells: { v: number; dt: Date }[] = [];
       for (let c = 0; c < cols; c++) {
         const dayOffset = cols - 1 - c;
         const base = new Date(now);
@@ -58,11 +57,10 @@ export default function StudyPage() {
           const dt = new Date(base);
           dt.setHours(hour, 0, 0, 0);
           const v = buckets[keyFor(dt)] ?? 0;
-          cells.push(v);
-          if (v > max) max = v;
+          cells.push({ v, dt });
         }
       }
-      return { cols, rows, cells, max };
+      return { cols, rows, cells };
     }
 
     const out: Record<string, ReturnType<typeof build>> = {};
@@ -70,13 +68,20 @@ export default function StudyPage() {
     return out;
   }, [buckets, now]);
 
-  function level(v: number, max: number): 0 | 1 | 2 | 3 | 4 {
-    if (v <= 0 || max <= 0) return 0;
-    const t = v / max;
-    if (t <= 0.25) return 1;
-    if (t <= 0.5) return 2;
-    if (t <= 0.75) return 3;
+  function levelFixed(v: number): 0 | 1 | 2 | 3 | 4 {
+    if (v <= 0) return 0;
+    if (v <= 2) return 1;
+    if (v <= 5) return 2;
+    if (v <= 9) return 3;
     return 4;
+  }
+
+  function formatCellTitle(dt: Date, v: number): string {
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, "0");
+    const d = String(dt.getDate()).padStart(2, "0");
+    const h = String(dt.getHours()).padStart(2, "0");
+    return `${y}-${m}-${d} ${h}時: ${v}件`;
   }
 
   return (
@@ -118,9 +123,9 @@ export default function StudyPage() {
 
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">解答数ヒートマップ</CardTitle>
+          <CardTitle className="text-base font-semibold">学習記録</CardTitle>
           <p className="text-xs text-muted-foreground">
-            ローカルに保存され、時間（1時間単位）ごとの解答数が濃淡で表示されます。
+            ローカルに保存され、時間（1時間単位）ごとの解いた問題数が濃淡で表示されます。
           </p>
         </CardHeader>
         <CardContent>
@@ -141,10 +146,10 @@ export default function StudyPage() {
                         gridTemplateColumns: `repeat(${g.cols}, 10px)`,
                         gridTemplateRows: `repeat(${g.rows}, 10px)`,
                       }}
-                      aria-label={`${k} の解答数ヒートマップ`}
+                      aria-label={`${k} の学習記録ヒートマップ`}
                     >
-                      {g.cells.map((v, i) => {
-                        const lv = level(v, g.max);
+                      {g.cells.map(({ v, dt }, i) => {
+                        const lv = levelFixed(v);
                         const cls =
                           lv === 0
                             ? "bg-muted/40"
@@ -162,35 +167,46 @@ export default function StudyPage() {
                               "h-[10px] w-[10px] rounded-[2px] ring-1 ring-border/20",
                               cls
                             )}
-                            title={v > 0 ? `${v}件` : "0件"}
+                            title={formatCellTitle(dt, v)}
                           />
                         );
                       })}
                     </div>
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span>少</span>
-                    <div className="flex items-center gap-1">
-                      {([0, 1, 2, 3, 4] as const).map((lv) => {
-                        const cls =
-                          lv === 0
-                            ? "bg-muted/40"
-                            : lv === 1
-                              ? "bg-primary/20"
-                              : lv === 2
-                                ? "bg-primary/35"
-                                : lv === 3
-                                  ? "bg-primary/55"
-                                  : "bg-primary/75";
-                        return (
-                          <div
-                            key={lv}
-                            className={cn("h-2.5 w-2.5 rounded-[2px] ring-1 ring-border/20", cls)}
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                    <span className="mr-1">凡例</span>
+                    {(
+                      [
+                        { lv: 0 as const, label: "0" },
+                        { lv: 1 as const, label: "1–2" },
+                        { lv: 2 as const, label: "3–5" },
+                        { lv: 3 as const, label: "6–9" },
+                        { lv: 4 as const, label: "10+" },
+                      ] as const
+                    ).map(({ lv, label }) => {
+                      const cls =
+                        lv === 0
+                          ? "bg-muted/40"
+                          : lv === 1
+                            ? "bg-primary/20"
+                            : lv === 2
+                              ? "bg-primary/35"
+                              : lv === 3
+                                ? "bg-primary/55"
+                                : "bg-primary/75";
+                      return (
+                        <span key={lv} className="inline-flex items-center gap-1.5">
+                          <span
+                            className={cn(
+                              "h-2.5 w-2.5 rounded-[2px] ring-1 ring-border/20",
+                              cls
+                            )}
+                            aria-hidden
                           />
-                        );
-                      })}
-                    </div>
-                    <span>多</span>
+                          <span>{label}</span>
+                        </span>
+                      );
+                    })}
                   </div>
                 </TabsContent>
               );
