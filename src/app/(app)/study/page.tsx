@@ -12,6 +12,7 @@ import { getActivityBuckets, type ActivityBuckets } from "@/lib/activity";
 
 export default function StudyPage() {
   const [buckets, setBuckets] = useState<ActivityBuckets>({});
+  const [selected, setSelected] = useState<{ dt: Date; v: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -24,8 +25,6 @@ export default function StudyPage() {
     };
   }, []);
 
-  const now = useMemo(() => new Date(), []);
-
   const grids = useMemo(() => {
     type Range = { days: number; label: string; value: string };
     const ranges: Range[] = [
@@ -33,6 +32,7 @@ export default function StudyPage() {
       { value: "month", label: "月間", days: 30 },
       { value: "year", label: "年間", days: 365 },
     ];
+    const now = new Date(); // local clock
 
     function keyFor(d: Date): string {
       const y = d.getFullYear();
@@ -47,11 +47,13 @@ export default function StudyPage() {
       const cols = days;
       const rows = 24;
       const cells: { v: number; dt: Date }[] = [];
+      const colDates: Date[] = [];
       for (let c = 0; c < cols; c++) {
         const dayOffset = cols - 1 - c;
         const base = new Date(now);
         base.setHours(0, 0, 0, 0);
         base.setDate(base.getDate() - dayOffset);
+        colDates.push(new Date(base));
         for (let r = 0; r < rows; r++) {
           const hour = 23 - r;
           const dt = new Date(base);
@@ -60,13 +62,13 @@ export default function StudyPage() {
           cells.push({ v, dt });
         }
       }
-      return { cols, rows, cells };
+      return { cols, rows, cells, colDates };
     }
 
     const out: Record<string, ReturnType<typeof build>> = {};
     for (const r of ranges) out[r.value] = build(r.days);
     return out;
-  }, [buckets, now]);
+  }, [buckets]);
 
   function levelFixed(v: number): 0 | 1 | 2 | 3 | 4 {
     if (v <= 0) return 0;
@@ -82,6 +84,10 @@ export default function StudyPage() {
     const d = String(dt.getDate()).padStart(2, "0");
     const h = String(dt.getHours()).padStart(2, "0");
     return `${y}-${m}-${d} ${h}時: ${v}件`;
+  }
+
+  function weekdayLabelJa(d: Date): string {
+    return ["日", "月", "火", "水", "木", "金", "土"][d.getDay()] ?? "";
   }
 
   return (
@@ -140,6 +146,45 @@ export default function StudyPage() {
               return (
                 <TabsContent key={k} value={k} className="pt-3">
                   <div className="overflow-x-auto rounded-xl border border-border/60 bg-background/50 p-3">
+                    {/* Top labels (days / months) */}
+                    <div
+                      className="mb-2 grid gap-1"
+                      style={{
+                        gridTemplateColumns: `repeat(${g.cols}, 10px)`,
+                      }}
+                      aria-hidden
+                    >
+                      {g.colDates.map((d, i) => {
+                        let label = "";
+                        if (k === "week") {
+                          label = weekdayLabelJa(d);
+                        } else if (k === "month") {
+                          // show day-of-month every 5 days to reduce clutter
+                          label = (i % 5 === 0 || i === g.colDates.length - 1) ? String(d.getDate()) : "";
+                        } else {
+                          // year: show month number at month boundaries
+                          const prev = g.colDates[i - 1];
+                          const isMonthStart = d.getDate() === 1;
+                          const monthChanged = prev ? prev.getMonth() !== d.getMonth() : true;
+                          label = isMonthStart || monthChanged ? String(d.getMonth() + 1) : "";
+                        }
+                        return (
+                          <div
+                            key={`${d.toISOString()}-${i}`}
+                            className="h-4 w-[10px] text-center text-[10px] leading-4 text-muted-foreground"
+                            title={
+                              k === "year"
+                                ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+                                : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+                                    d.getDate()
+                                  ).padStart(2, "0")}`
+                            }
+                          >
+                            {label}
+                          </div>
+                        );
+                      })}
+                    </div>
                     <div
                       className="grid gap-1"
                       style={{
@@ -161,53 +206,54 @@ export default function StudyPage() {
                                   ? "bg-primary/55"
                                   : "bg-primary/75";
                         return (
-                          <div
+                          <button
                             key={i}
+                            type="button"
                             className={cn(
                               "h-[10px] w-[10px] rounded-[2px] ring-1 ring-border/20",
                               cls
                             )}
                             title={formatCellTitle(dt, v)}
+                            aria-label={formatCellTitle(dt, v)}
+                            onClick={() => setSelected({ dt, v })}
                           />
                         );
                       })}
                     </div>
                   </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                    <span className="mr-1">凡例</span>
-                    {(
-                      [
-                        { lv: 0 as const, label: "0" },
-                        { lv: 1 as const, label: "1–2" },
-                        { lv: 2 as const, label: "3–5" },
-                        { lv: 3 as const, label: "6–9" },
-                        { lv: 4 as const, label: "10+" },
-                      ] as const
-                    ).map(({ lv, label }) => {
-                      const cls =
-                        lv === 0
-                          ? "bg-muted/40"
-                          : lv === 1
-                            ? "bg-primary/20"
-                            : lv === 2
-                              ? "bg-primary/35"
-                              : lv === 3
-                                ? "bg-primary/55"
-                                : "bg-primary/75";
-                      return (
-                        <span key={lv} className="inline-flex items-center gap-1.5">
-                          <span
-                            className={cn(
-                              "h-2.5 w-2.5 rounded-[2px] ring-1 ring-border/20",
-                              cls
-                            )}
-                            aria-hidden
+                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span>Less</span>
+                    <div className="flex items-center gap-1" aria-hidden>
+                      {([0, 1, 2, 3, 4] as const).map((lv) => {
+                        const cls =
+                          lv === 0
+                            ? "bg-muted/40"
+                            : lv === 1
+                              ? "bg-primary/20"
+                              : lv === 2
+                                ? "bg-primary/35"
+                                : lv === 3
+                                  ? "bg-primary/55"
+                                  : "bg-primary/75";
+                        return (
+                          <div
+                            key={lv}
+                            className={cn("h-2.5 w-2.5 rounded-[2px] ring-1 ring-border/20", cls)}
                           />
-                          <span>{label}</span>
-                        </span>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                    <span>More</span>
                   </div>
+
+                  {selected ? (
+                    <div className="mt-2 rounded-xl border border-border/60 bg-background/70 px-3 py-2 text-xs">
+                      <span className="font-medium text-foreground">選択中</span>{" "}
+                      <span className="text-muted-foreground">
+                        {formatCellTitle(selected.dt, selected.v)}
+                      </span>
+                    </div>
+                  ) : null}
                 </TabsContent>
               );
             })}
