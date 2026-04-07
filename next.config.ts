@@ -14,4 +14,6 @@ export default withPWA({
   disable: isDev,
   register: true,
   skipWaiting: true,
+  clientsClaim: true,
+  cleanupOutdatedCaches: true,
 })(nextConfig);
