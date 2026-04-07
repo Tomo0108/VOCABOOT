@@ -50,14 +50,6 @@ export function WordDetailPanel({
           <h1 className="break-words text-3xl font-semibold tracking-tight text-foreground">
             {word.term}
           </h1>
-          {word.ipa ? (
-            <p className="text-sm text-muted-foreground">
-              発音記号：
-              <span className="font-mono text-base font-semibold text-foreground/90">
-                [ {word.ipa} ]
-              </span>
-            </p>
-          ) : null}
           {word.partOfSpeech ? (
             <p className="text-sm text-muted-foreground">
               {POS_LABEL[word.partOfSpeech] ?? word.partOfSpeech}

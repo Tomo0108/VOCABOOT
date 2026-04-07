@@ -149,14 +149,6 @@ function WordAnswerExplainer({
         <p className="text-xs font-medium text-muted-foreground">正解の和訳</p>
         <p className="font-medium text-foreground">{correctMeaning}</p>
       </div>
-      {word.ipa ? (
-        <p className="text-sm text-muted-foreground">
-          発音記号：
-          <span className="font-mono font-semibold text-foreground">
-            [ {word.ipa} ]
-          </span>
-        </p>
-      ) : null}
       {word.partOfSpeech ? (
         <p className="text-xs text-muted-foreground">
           品詞: {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
@@ -275,14 +267,6 @@ function FeedbackCard({
             <CardTitle className="break-words text-2xl font-semibold tracking-tight text-foreground">
               {word.term}
             </CardTitle>
-            {word.ipa ? (
-              <p className="text-sm text-muted-foreground">
-                発音記号：
-                <span className="font-mono font-semibold text-foreground/90">
-                  [ {word.ipa} ]
-                </span>
-              </p>
-            ) : null}
             {showPos && word.partOfSpeech ? (
               <p className="text-xs text-muted-foreground">
                 {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
@@ -919,14 +903,6 @@ export function StudySessionClient() {
                   <CardTitle className="break-words text-3xl font-semibold tracking-tight text-foreground">
                     {current.term}
                   </CardTitle>
-                  {current.ipa ? (
-                    <p className="text-sm text-muted-foreground">
-                      発音記号：
-                      <span className="font-mono text-base font-semibold text-foreground/90">
-                        [ {current.ipa} ]
-                      </span>
-                    </p>
-                  ) : null}
                   {showPosInQuestion && current.partOfSpeech ? (
                     <p className="text-xs text-muted-foreground">
                       {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
