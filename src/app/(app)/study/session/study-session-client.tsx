@@ -49,6 +49,7 @@ import { cn, focusRingLink } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import { POS_LABEL } from "@/lib/part-of-speech-labels";
 import { quizChoiceMeaningJa } from "@/lib/quiz-meaning";
+import { recordSolved } from "@/lib/activity";
 
 type Mode = "new" | "mix" | "review";
 
@@ -505,6 +506,7 @@ export function StudySessionClient() {
       await rateWord(current.id, rating, {
         compactSchedule: prefs?.compactSchedule ?? false,
       });
+      await recordSolved(1);
       setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
       const nextResults = [
         ...sessionResults,
