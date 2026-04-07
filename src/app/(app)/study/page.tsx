@@ -13,6 +13,7 @@ import { getActivityBuckets, type ActivityBuckets } from "@/lib/activity";
 export default function StudyPage() {
   const [buckets, setBuckets] = useState<ActivityBuckets>({});
   const [selected, setSelected] = useState<{ dt: Date; v: number } | null>(null);
+  const [activeTab, setActiveTab] = useState<"week" | "month" | "year">("week");
 
   useEffect(() => {
     let cancelled = false;
@@ -26,11 +27,11 @@ export default function StudyPage() {
   }, []);
 
   const grids = useMemo(() => {
-    type Range = { days: number; label: string; value: string };
+    type Range = { label: string; value: string };
     const ranges: Range[] = [
-      { value: "week", label: "週間", days: 7 },
-      { value: "month", label: "月間", days: 30 },
-      { value: "year", label: "年間", days: 365 },
+      { value: "week", label: "週間" },
+      { value: "month", label: "月間" },
+      { value: "year", label: "年間" },
     ];
     const now = new Date(); // local clock
 
@@ -42,31 +43,86 @@ export default function StudyPage() {
       return `${y}-${m}-${day}T${h}`;
     }
 
-    function build(days: number) {
-      // columns: days (oldest -> newest), rows: hour 0..23 (top=23 like GH? keep 23 at top)
-      const cols = days;
-      const rows = 24;
-      const cells: { v: number; dt: Date }[] = [];
-      const colDates: Date[] = [];
-      for (let c = 0; c < cols; c++) {
-        const dayOffset = cols - 1 - c;
-        const base = new Date(now);
-        base.setHours(0, 0, 0, 0);
-        base.setDate(base.getDate() - dayOffset);
-        colDates.push(new Date(base));
-        for (let r = 0; r < rows; r++) {
-          const hour = 23 - r;
-          const dt = new Date(base);
-          dt.setHours(hour, 0, 0, 0);
-          const v = buckets[keyFor(dt)] ?? 0;
-          cells.push({ v, dt });
-        }
-      }
-      return { cols, rows, cells, colDates };
+    function startOfDay(d: Date): Date {
+      const x = new Date(d);
+      x.setHours(0, 0, 0, 0);
+      return x;
     }
 
-    const out: Record<string, ReturnType<typeof build>> = {};
-    for (const r of ranges) out[r.value] = build(r.days);
+    function startOfWeekMonday(d: Date): Date {
+      const x = startOfDay(d);
+      // JS: Sun=0..Sat=6. Want Monday=0..Sunday=6.
+      const dow = (x.getDay() + 6) % 7;
+      x.setDate(x.getDate() - dow);
+      return x;
+    }
+
+    function sumBuckets(day: Date, fromHour: number, spanHours: number): number {
+      let sum = 0;
+      for (let h = 0; h < spanHours; h++) {
+        const dt = new Date(day);
+        dt.setHours(fromHour + h, 0, 0, 0);
+        sum += buckets[keyFor(dt)] ?? 0;
+      }
+      return sum;
+    }
+
+    function build(kind: "week" | "month" | "year") {
+      const cell = kind === "week" ? 18 : kind === "month" ? 14 : 14;
+      const gap = kind === "week" ? 2 : 2;
+      const hourSpan = kind === "week" ? 3 : 3; // larger blocks (3 hours) for readability
+      const rows = Math.ceil(24 / hourSpan);
+
+      let colDates: Date[] = [];
+      if (kind === "week") {
+        const start = startOfWeekMonday(now);
+        colDates = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          return d;
+        });
+      } else if (kind === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        colDates = Array.from({ length: daysInMonth }, (_, i) => {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          return d;
+        });
+      } else {
+        const start = new Date(now.getFullYear(), 0, 1);
+        const isLeap =
+          new Date(now.getFullYear(), 1, 29).getMonth() === 1;
+        const daysInYear = isLeap ? 366 : 365;
+        colDates = Array.from({ length: daysInYear }, (_, i) => {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          return d;
+        });
+      }
+
+      const cols = colDates.length;
+      const cells: { v: number; dt: Date; spanHours: number }[] = [];
+      for (const base of colDates) {
+        for (let r = 0; r < rows; r++) {
+          const fromHour = 24 - hourSpan * (r + 1);
+          const startHour = Math.max(0, fromHour);
+          const span = Math.min(hourSpan, 24 - startHour);
+          const v = sumBuckets(base, startHour, span);
+          const dt = new Date(base);
+          dt.setHours(startHour, 0, 0, 0);
+          cells.push({ v, dt, spanHours: span });
+        }
+      }
+
+      return { cols, rows, cells, colDates, cell, gap, hourSpan };
+    }
+
+    const out: Record<string, ReturnType<typeof build>> = {
+      week: build("week"),
+      month: build("month"),
+      year: build("year"),
+    };
     return out;
   }, [buckets]);
 
@@ -78,12 +134,14 @@ export default function StudyPage() {
     return 4;
   }
 
-  function formatCellTitle(dt: Date, v: number): string {
+  function formatCellTitle(dt: Date, v: number, spanHours = 1): string {
     const y = dt.getFullYear();
     const m = String(dt.getMonth() + 1).padStart(2, "0");
     const d = String(dt.getDate()).padStart(2, "0");
     const h = String(dt.getHours()).padStart(2, "0");
-    return `${y}-${m}-${d} ${h}時: ${v}件`;
+    if (spanHours <= 1) return `${y}-${m}-${d} ${h}時: ${v}件`;
+    const h2 = String(Math.min(23, dt.getHours() + spanHours - 1)).padStart(2, "0");
+    return `${y}-${m}-${d} ${h}–${h2}時: ${v}件`;
   }
 
   function weekdayLabelJa(d: Date): string {
@@ -135,7 +193,7 @@ export default function StudyPage() {
           </p>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="week">
+          <Tabs defaultValue="week" value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
             <TabsList>
               <TabsTrigger value="week">週間</TabsTrigger>
               <TabsTrigger value="month">月間</TabsTrigger>
@@ -150,7 +208,8 @@ export default function StudyPage() {
                     <div
                       className="mb-2 grid gap-1"
                       style={{
-                        gridTemplateColumns: `repeat(${g.cols}, 10px)`,
+                        gridTemplateColumns: `repeat(${g.cols}, ${g.cell}px)`,
+                        columnGap: `${g.gap}px`,
                       }}
                       aria-hidden
                     >
@@ -159,8 +218,11 @@ export default function StudyPage() {
                         if (k === "week") {
                           label = weekdayLabelJa(d);
                         } else if (k === "month") {
-                          // show day-of-month every 5 days to reduce clutter
-                          label = (i % 5 === 0 || i === g.colDates.length - 1) ? String(d.getDate()) : "";
+                          // show day-of-month every 3 days (bigger cells, fewer labels)
+                          label =
+                            i % 3 === 0 || i === g.colDates.length - 1
+                              ? String(d.getDate())
+                              : "";
                         } else {
                           // year: show month number at month boundaries
                           const prev = g.colDates[i - 1];
@@ -171,7 +233,10 @@ export default function StudyPage() {
                         return (
                           <div
                             key={`${d.toISOString()}-${i}`}
-                            className="h-4 w-[10px] text-center text-[10px] leading-4 text-muted-foreground"
+                            className={cn(
+                              "text-center text-muted-foreground",
+                              k === "week" ? "h-6 text-sm leading-6" : "h-5 text-xs leading-5"
+                            )}
                             title={
                               k === "year"
                                 ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
@@ -188,12 +253,13 @@ export default function StudyPage() {
                     <div
                       className="grid gap-1"
                       style={{
-                        gridTemplateColumns: `repeat(${g.cols}, 10px)`,
-                        gridTemplateRows: `repeat(${g.rows}, 10px)`,
+                        gridTemplateColumns: `repeat(${g.cols}, ${g.cell}px)`,
+                        gridTemplateRows: `repeat(${g.rows}, ${g.cell}px)`,
+                        gap: `${g.gap}px`,
                       }}
                       aria-label={`${k} の学習記録ヒートマップ`}
                     >
-                      {g.cells.map(({ v, dt }, i) => {
+                      {g.cells.map(({ v, dt, spanHours }, i) => {
                         const lv = levelFixed(v);
                         const cls =
                           lv === 0
@@ -210,47 +276,53 @@ export default function StudyPage() {
                             key={i}
                             type="button"
                             className={cn(
-                              "h-[10px] w-[10px] rounded-[2px] ring-1 ring-border/20",
+                              "rounded-[3px] ring-1 ring-border/20",
                               cls
                             )}
-                            title={formatCellTitle(dt, v)}
-                            aria-label={formatCellTitle(dt, v)}
+                            title={formatCellTitle(dt, v, spanHours)}
+                            aria-label={formatCellTitle(dt, v, spanHours)}
                             onClick={() => setSelected({ dt, v })}
                           />
                         );
                       })}
                     </div>
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span>Less</span>
-                    <div className="flex items-center gap-1" aria-hidden>
-                      {([0, 1, 2, 3, 4] as const).map((lv) => {
-                        const cls =
-                          lv === 0
-                            ? "bg-muted/40"
-                            : lv === 1
-                              ? "bg-primary/20"
-                              : lv === 2
-                                ? "bg-primary/35"
-                                : lv === 3
-                                  ? "bg-primary/55"
-                                  : "bg-primary/75";
-                        return (
-                          <div
-                            key={lv}
-                            className={cn("h-2.5 w-2.5 rounded-[2px] ring-1 ring-border/20", cls)}
-                          />
-                        );
-                      })}
+                  <div className="mt-2 flex justify-end text-[11px] text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <span>Less</span>
+                      <div className="flex items-center gap-1" aria-hidden>
+                        {([0, 1, 2, 3, 4] as const).map((lv) => {
+                          const cls =
+                            lv === 0
+                              ? "bg-muted/40"
+                              : lv === 1
+                                ? "bg-primary/20"
+                                : lv === 2
+                                  ? "bg-primary/35"
+                                  : lv === 3
+                                    ? "bg-primary/55"
+                                    : "bg-primary/75";
+                          return (
+                            <div
+                              key={lv}
+                              className={cn("h-3.5 w-3.5 rounded-[3px] ring-1 ring-border/20", cls)}
+                            />
+                          );
+                        })}
+                      </div>
+                      <span>More</span>
                     </div>
-                    <span>More</span>
                   </div>
 
                   {selected ? (
                     <div className="mt-2 rounded-xl border border-border/60 bg-background/70 px-3 py-2 text-xs">
                       <span className="font-medium text-foreground">選択中</span>{" "}
                       <span className="text-muted-foreground">
-                        {formatCellTitle(selected.dt, selected.v)}
+                        {formatCellTitle(
+                          selected.dt,
+                          selected.v,
+                          activeTab === "week" ? 3 : 3
+                        )}
                       </span>
                     </div>
                   ) : null}
