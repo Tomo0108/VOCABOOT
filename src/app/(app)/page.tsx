@@ -140,7 +140,7 @@ export default function Home() {
                   </Link>
                 ) : null}
                 <Link
-                  href="/study/session?mode=mix&n=10&offset=0"
+                  href="/study/session?mode=new&n=10"
                   className={cn(
                     primaryIsReview ? focusRingHeroGhost : focusRingHeroPrimary,
                     "inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-5 text-base font-semibold transition-colors",
@@ -152,7 +152,7 @@ export default function Home() {
                   {!primaryIsReview ? (
                     <Sparkles className="h-5 w-5 opacity-90" aria-hidden />
                   ) : null}
-                  {primaryIsReview ? "新しい10語へ" : "10語を始める"}
+                  {primaryIsReview ? "新規10語へ" : "新規10語を始める"}
                 </Link>
               </div>
             </div>
