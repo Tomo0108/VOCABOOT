@@ -4,7 +4,7 @@
 export type ToeicWord = {
   id: string;
   term: string;
-  /** 発音記号（IPA）。例: /əbáɪd/ */
+  /** 発音記号（IPA, 米語）。例: əbˈaɪd */
   ipa?: string;
   meaningJa: string;
   partOfSpeech?: "n" | "v" | "adj" | "adv" | "prep" | "conj" | "phr";
