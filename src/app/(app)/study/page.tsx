@@ -148,6 +148,13 @@ export default function StudyPage() {
     return ["日", "月", "火", "水", "木", "金", "土"][d.getDay()] ?? "";
   }
 
+  function monthLabelEn(m0: number): string {
+    return (
+      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m0] ??
+      String(m0 + 1)
+    );
+  }
+
   return (
     <Screen
       title="学習"
@@ -218,17 +225,17 @@ export default function StudyPage() {
                         if (k === "week") {
                           label = weekdayLabelJa(d);
                         } else if (k === "month") {
-                          // show day-of-month every 3 days (bigger cells, fewer labels)
+                          // show day-of-month with suffix to avoid confusion
                           label =
                             i % 3 === 0 || i === g.colDates.length - 1
-                              ? String(d.getDate())
+                              ? `${d.getDate()}日`
                               : "";
                         } else {
-                          // year: show month number at month boundaries
+                          // year: show English month at boundaries
                           const prev = g.colDates[i - 1];
                           const isMonthStart = d.getDate() === 1;
                           const monthChanged = prev ? prev.getMonth() !== d.getMonth() : true;
-                          label = isMonthStart || monthChanged ? String(d.getMonth() + 1) : "";
+                          label = isMonthStart || monthChanged ? monthLabelEn(d.getMonth()) : "";
                         }
                         return (
                           <div
