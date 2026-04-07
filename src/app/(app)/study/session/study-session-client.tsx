@@ -149,6 +149,11 @@ function WordAnswerExplainer({
         <p className="text-xs font-medium text-muted-foreground">正解の和訳</p>
         <p className="font-medium text-foreground">{correctMeaning}</p>
       </div>
+      {word.ipa ? (
+        <p className="text-xs text-muted-foreground">
+          発音記号: <span className="font-medium text-foreground">/{word.ipa}/</span>
+        </p>
+      ) : null}
       {word.partOfSpeech ? (
         <p className="text-xs text-muted-foreground">
           品詞: {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
@@ -228,6 +233,7 @@ function FeedbackCard({
   ratingBusy,
   onConfirm,
   onSpeak,
+  showPos,
 }: {
   word: ToeicWord;
   pending: { wasCorrect: boolean; pickedMeaning: string };
@@ -235,6 +241,7 @@ function FeedbackCard({
   ratingBusy: boolean;
   onConfirm: () => void;
   onSpeak: () => void;
+  showPos: boolean;
 }) {
   return (
     <>
@@ -247,9 +254,6 @@ function FeedbackCard({
         >
           次の問題へ
         </Button>
-        <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
-          Enter キーでも進めます
-        </p>
         <p className="sr-only" aria-live="polite" aria-atomic="true">
           {pending.wasCorrect ? "正解です" : "不正解です"}
         </p>
@@ -268,7 +272,10 @@ function FeedbackCard({
             <CardTitle className="break-words text-2xl font-semibold tracking-tight text-foreground">
               {word.term}
             </CardTitle>
-            {word.partOfSpeech ? (
+            {word.ipa ? (
+              <p className="text-xs text-muted-foreground">/{word.ipa}/</p>
+            ) : null}
+            {showPos && word.partOfSpeech ? (
               <p className="text-xs text-muted-foreground">
                 {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
               </p>
@@ -617,6 +624,7 @@ export function StudySessionClient() {
         : "学習（ミックス）";
 
   const posLabel = POS_LABEL;
+  const showPosInQuestion = prefs?.showPartOfSpeechInQuestion ?? true;
 
   if (loading) {
     return (
@@ -890,6 +898,7 @@ export function StudySessionClient() {
             ratingBusy={ratingBusy}
             onConfirm={confirmFeedback}
             onSpeak={() => speakEnglish(current.term)}
+            showPos={showPosInQuestion}
           />
         ) : (
           <>
@@ -902,13 +911,16 @@ export function StudySessionClient() {
                   <CardTitle className="break-words text-3xl font-semibold tracking-tight text-foreground">
                     {current.term}
                   </CardTitle>
-                  {current.partOfSpeech ? (
+                  {current.ipa ? (
+                    <p className="text-xs text-muted-foreground">/{current.ipa}/</p>
+                  ) : null}
+                  {showPosInQuestion && current.partOfSpeech ? (
                     <p className="text-xs text-muted-foreground">
                       {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
                     </p>
-                  ) : (
+                  ) : showPosInQuestion ? (
                     <p className="text-xs text-muted-foreground">品詞未分類</p>
-                  )}
+                  ) : null}
                   {current.tags && current.tags.length > 0 ? (
                     <p className="text-xs text-muted-foreground">
                       {current.tags.join(" · ")}
@@ -945,9 +957,6 @@ export function StudySessionClient() {
                   </Button>
                 ))}
               </div>
-              <p className="text-center text-[10px] leading-relaxed text-muted-foreground/60">
-                キー 1〜4 でも選べます
-              </p>
             </CardContent>
           </>
         )}

@@ -9,12 +9,15 @@ export type AppPreferences = {
   showExample: boolean;
   /** 学習セッションで問題（4択）表示時に英語を自動読み上げ（既定はオフ） */
   autoSpeakEnglish: boolean;
+  /** 学習セッションの問題文で品詞を表示する */
+  showPartOfSpeechInQuestion: boolean;
 };
 
 const DEFAULTS: AppPreferences = {
   compactSchedule: false,
   showExample: true,
   autoSpeakEnglish: false,
+  showPartOfSpeechInQuestion: true,
 };
 
 export async function getPreferences(): Promise<AppPreferences> {

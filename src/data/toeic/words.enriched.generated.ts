@@ -4,6 +4,8 @@
 export type ToeicWord = {
   id: string;
   term: string;
+  /** 発音記号（IPA）。例: /əbáɪd/ */
+  ipa?: string;
   meaningJa: string;
   partOfSpeech?: "n" | "v" | "adj" | "adv" | "prep" | "conj" | "phr";
   exampleEn?: string;
