@@ -151,8 +151,10 @@ function WordAnswerExplainer({
       </div>
       {word.ipa ? (
         <p className="text-sm text-muted-foreground">
-          発音記号:{" "}
-          <span className="font-semibold text-foreground">[{word.ipa}]</span>
+          発音記号：
+          <span className="font-mono font-semibold text-foreground">
+            [ {word.ipa} ]
+          </span>
         </p>
       ) : null}
       {word.partOfSpeech ? (
@@ -274,7 +276,12 @@ function FeedbackCard({
               {word.term}
             </CardTitle>
             {word.ipa ? (
-              <p className="text-sm font-semibold text-foreground/85">[{word.ipa}]</p>
+              <p className="text-sm text-muted-foreground">
+                発音記号：
+                <span className="font-mono font-semibold text-foreground/90">
+                  [ {word.ipa} ]
+                </span>
+              </p>
             ) : null}
             {showPos && word.partOfSpeech ? (
               <p className="text-xs text-muted-foreground">
@@ -913,7 +920,12 @@ export function StudySessionClient() {
                     {current.term}
                   </CardTitle>
                   {current.ipa ? (
-                    <p className="text-base font-semibold text-foreground/85">[{current.ipa}]</p>
+                    <p className="text-sm text-muted-foreground">
+                      発音記号：
+                      <span className="font-mono text-base font-semibold text-foreground/90">
+                        [ {current.ipa} ]
+                      </span>
+                    </p>
                   ) : null}
                   {showPosInQuestion && current.partOfSpeech ? (
                     <p className="text-xs text-muted-foreground">
