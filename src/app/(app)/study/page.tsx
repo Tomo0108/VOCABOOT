@@ -68,10 +68,12 @@ export default function StudyPage() {
     }
 
     function build(kind: "week" | "month" | "year") {
-      const cell = kind === "week" ? 18 : kind === "month" ? 14 : 14;
-      const gap = kind === "week" ? 2 : 2;
+      const cell = kind === "week" ? 20 : kind === "month" ? 14 : 14;
+      const gapX = kind === "week" ? 10 : 3;
+      const gapY = kind === "week" ? 6 : 3;
       const hourSpan = kind === "week" ? 3 : 3; // larger blocks (3 hours) for readability
       const rows = Math.ceil(24 / hourSpan);
+      const monthName = kind === "month" ? monthLabelEn(now.getMonth()) : null;
 
       let colDates: Date[] = [];
       if (kind === "week") {
@@ -115,7 +117,7 @@ export default function StudyPage() {
         }
       }
 
-      return { cols, rows, cells, colDates, cell, gap, hourSpan };
+      return { cols, rows, cells, colDates, cell, gapX, gapY, hourSpan, monthName };
     }
 
     const out: Record<string, ReturnType<typeof build>> = {
@@ -211,58 +213,59 @@ export default function StudyPage() {
               return (
                 <TabsContent key={k} value={k} className="pt-3">
                   <div className="overflow-x-auto rounded-xl border border-border/60 bg-background/50 p-3">
-                    {/* Top labels (days / months) */}
+                    {k === "month" ? (
+                      <div className="mb-2 text-sm font-semibold text-foreground">
+                        {g.monthName}
+                      </div>
+                    ) : (
+                      /* Top labels (weekdays / months) */
+                      <div
+                        className="mb-2 grid"
+                        style={{
+                          gridTemplateColumns: `repeat(${g.cols}, ${g.cell}px)`,
+                          columnGap: `${g.gapX}px`,
+                        }}
+                        aria-hidden
+                      >
+                        {g.colDates.map((d, i) => {
+                          let label = "";
+                          if (k === "week") {
+                            label = weekdayLabelJa(d);
+                          } else {
+                            // year: show English month at boundaries
+                            const prev = g.colDates[i - 1];
+                            const isMonthStart = d.getDate() === 1;
+                            const monthChanged = prev ? prev.getMonth() !== d.getMonth() : true;
+                            label = isMonthStart || monthChanged ? monthLabelEn(d.getMonth()) : "";
+                          }
+                          return (
+                            <div
+                              key={`${d.toISOString()}-${i}`}
+                              className={cn(
+                                "text-center text-muted-foreground",
+                                k === "week"
+                                  ? "h-7 text-base leading-7"
+                                  : "h-5 text-xs leading-5"
+                              )}
+                              title={
+                                `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+                                  d.getDate()
+                                ).padStart(2, "0")}`
+                              }
+                            >
+                              {label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                     <div
-                      className="mb-2 grid gap-1"
-                      style={{
-                        gridTemplateColumns: `repeat(${g.cols}, ${g.cell}px)`,
-                        columnGap: `${g.gap}px`,
-                      }}
-                      aria-hidden
-                    >
-                      {g.colDates.map((d, i) => {
-                        let label = "";
-                        if (k === "week") {
-                          label = weekdayLabelJa(d);
-                        } else if (k === "month") {
-                          // show day-of-month with suffix to avoid confusion
-                          label =
-                            i % 3 === 0 || i === g.colDates.length - 1
-                              ? `${d.getDate()}日`
-                              : "";
-                        } else {
-                          // year: show English month at boundaries
-                          const prev = g.colDates[i - 1];
-                          const isMonthStart = d.getDate() === 1;
-                          const monthChanged = prev ? prev.getMonth() !== d.getMonth() : true;
-                          label = isMonthStart || monthChanged ? monthLabelEn(d.getMonth()) : "";
-                        }
-                        return (
-                          <div
-                            key={`${d.toISOString()}-${i}`}
-                            className={cn(
-                              "text-center text-muted-foreground",
-                              k === "week" ? "h-6 text-sm leading-6" : "h-5 text-xs leading-5"
-                            )}
-                            title={
-                              k === "year"
-                                ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
-                                : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-                                    d.getDate()
-                                  ).padStart(2, "0")}`
-                            }
-                          >
-                            {label}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div
-                      className="grid gap-1"
+                      className="grid"
                       style={{
                         gridTemplateColumns: `repeat(${g.cols}, ${g.cell}px)`,
                         gridTemplateRows: `repeat(${g.rows}, ${g.cell}px)`,
-                        gap: `${g.gap}px`,
+                        columnGap: `${g.gapX}px`,
+                        rowGap: `${g.gapY}px`,
                       }}
                       aria-label={`${k} の学習記録ヒートマップ`}
                     >
