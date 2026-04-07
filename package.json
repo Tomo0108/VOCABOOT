@@ -11,12 +11,14 @@
     "audit:katakana-meanings": "node scripts/scan-katakana-in-meanings.mjs",
     "data:tsl": "node scripts/build-tsl.mjs",
     "data:wiktionary:ja": "node scripts/enrich-wiktionary-ja.mjs",
-    "data:fill-ja": "node scripts/fill-missing-ja-google.mjs"
+    "data:fill-ja": "node scripts/fill-missing-ja-google.mjs",
+    "data:ipa": "node scripts/fill-ipa-cmudict.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmu-pronouncing-dictionary": "^3.0.0",
     "idb-keyval": "^6.2.2",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
