@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, focusRingLink } from "@/lib/utils";
@@ -22,11 +22,13 @@ const MONTH_EN = [
 const HOUR_SPAN = 3;
 const TIME_ROWS = Math.ceil(24 / HOUR_SPAN); // 8
 
-function levelFixed(v: number): 0 | 1 | 2 | 3 | 4 {
-  if (v <= 0) return 0;
-  if (v <= 2) return 1;
-  if (v <= 5) return 2;
-  if (v <= 9) return 3;
+/** 表示期間内の最大件数に対する比率で 0〜4 段階（0 は未記録） */
+function levelRelative(v: number, maxInView: number): 0 | 1 | 2 | 3 | 4 {
+  if (v <= 0 || maxInView <= 0) return 0;
+  const r = v / maxInView;
+  if (r <= 0.25) return 1;
+  if (r <= 0.5) return 2;
+  if (r <= 0.75) return 3;
   return 4;
 }
 
@@ -92,6 +94,11 @@ function formatSelected(c: CellInfo): string {
   const h1 = c.dt.getHours();
   const h2 = Math.min(23, h1 + HOUR_SPAN - 1);
   return `${dateStr} ${String(h1).padStart(2, "0")}–${String(h2).padStart(2, "0")}時：${c.v}問`;
+}
+
+function cellInfoEqual(a: CellInfo | null, b: CellInfo | null): boolean {
+  if (!a || !b) return false;
+  return a.kind === b.kind && a.dt.getTime() === b.dt.getTime();
 }
 
 /* ------------------------------------------------------------------ */
@@ -218,7 +225,7 @@ function buildYear(buckets: ActivityBuckets, now: Date): YearGrid {
 
 function Legend() {
   return (
-    <div className="mt-2 flex justify-end text-[11px] text-muted-foreground">
+    <div className="mt-2 flex flex-col items-end gap-0.5 text-[11px] text-muted-foreground">
       <div className="flex items-center gap-1.5">
         <span>Less</span>
         {([0, 1, 2, 3, 4] as const).map((lv) => (
@@ -230,6 +237,7 @@ function Legend() {
         ))}
         <span>More</span>
       </div>
+      <span className="text-[10px] opacity-90">（期間内の最大に対する割合）</span>
     </div>
   );
 }
@@ -268,6 +276,7 @@ export default function StudyPage() {
   const [buckets, setBuckets] = useState<ActivityBuckets>({});
   const [selected, setSelected] = useState<CellInfo | null>(null);
   const [activeTab, setActiveTab] = useState<"week" | "month" | "year">("week");
+  const learningRecordCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -283,10 +292,54 @@ export default function StudyPage() {
     setSelected(null);
   }, []);
 
+  /** セル以外をタップしたら解除（カード外も解除） */
+  useEffect(() => {
+    const onPointerDownCapture = (e: PointerEvent) => {
+      const root = learningRecordCardRef.current;
+      const t = e.target as Node | null;
+      if (!root || !t) return;
+      if (!root.contains(t)) {
+        setSelected(null);
+        return;
+      }
+      if ((t as HTMLElement).closest?.("[data-activity-cell]")) return;
+      setSelected(null);
+    };
+    document.addEventListener("pointerdown", onPointerDownCapture, true);
+    return () => document.removeEventListener("pointerdown", onPointerDownCapture, true);
+  }, []);
+
   const now = useMemo(() => new Date(), []);
   const week = useMemo(() => buildWeek(buckets, now), [buckets, now]);
   const month = useMemo(() => buildMonth(buckets, now), [buckets, now]);
   const year = useMemo(() => buildYear(buckets, now), [buckets, now]);
+
+  const weekMax = useMemo(
+    () => Math.max(0, ...week.cells.map((c) => c.v)),
+    [week.cells]
+  );
+  const monthMax = useMemo(
+    () => Math.max(0, ...month.cells.map((c) => c.v)),
+    [month.cells]
+  );
+  const yearMax = useMemo(
+    () =>
+      Math.max(
+        0,
+        ...year.cells.filter((c) => c.inRange).map((c) => c.v)
+      ),
+    [year.cells]
+  );
+
+  const selectHourBlock = useCallback((dt: Date, v: number) => {
+    const next: CellInfo = { dt, v, kind: "hour-block" };
+    setSelected((prev) => (cellInfoEqual(prev, next) ? null : next));
+  }, []);
+
+  const selectDay = useCallback((dt: Date, v: number) => {
+    const next: CellInfo = { dt, v, kind: "day" };
+    setSelected((prev) => (cellInfoEqual(prev, next) ? null : next));
+  }, []);
 
   /* ---------- Week view config ---------- */
   const wCell = 28;
@@ -340,11 +393,14 @@ export default function StudyPage() {
       </Card>
 
       {/* ==================== 学習記録 ==================== */}
-      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+      <Card
+        ref={learningRecordCardRef}
+        className="rounded-2xl border border-border/80 bg-card shadow-sm"
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">学習記録</CardTitle>
           <p className="text-xs text-muted-foreground">
-            解いた問題数が濃淡で表示されます。セルをタップすると詳細を確認できます。
+            その週・月・年の中で最も多いセルを基準に、解いた問題数に応じて濃さが変わります。セルをタップで詳細、もう一度タップかセル以外をタップで解除できます。
           </p>
         </CardHeader>
         <CardContent>
@@ -400,16 +456,18 @@ export default function StudyPage() {
                         <button
                           key={i}
                           type="button"
+                          data-activity-cell
+                          aria-pressed={isSelected}
                           className={cn(
                             "rounded-[4px] ring-1 transition-shadow",
-                            LEVEL_CLS[levelFixed(v)],
+                            LEVEL_CLS[levelRelative(v, weekMax)],
                             isSelected
                               ? "ring-2 ring-foreground/60 shadow-md"
                               : "ring-border/20"
                           )}
                           style={{ gridColumn: col + 1, gridRow: row + 1 }}
                           title={`${fmtDate(dt)} ${dt.getHours()}–${dt.getHours() + HOUR_SPAN - 1}時: ${v}問`}
-                          onClick={() => setSelected({ dt, v, kind: "hour-block" })}
+                          onClick={() => selectHourBlock(dt, v)}
                         />
                       );
                     })}
@@ -454,16 +512,18 @@ export default function StudyPage() {
                         <button
                           key={i}
                           type="button"
+                          data-activity-cell
+                          aria-pressed={isSelected}
                           className={cn(
                             "rounded-[3px] ring-1 transition-shadow",
-                            LEVEL_CLS[levelFixed(v)],
+                            LEVEL_CLS[levelRelative(v, monthMax)],
                             isSelected
                               ? "ring-2 ring-foreground/60 shadow-md"
                               : "ring-border/20"
                           )}
                           style={{ gridColumn: col + 1, gridRow: row + 1 }}
                           title={`${fmtDate(dt)} ${dt.getHours()}–${dt.getHours() + HOUR_SPAN - 1}時: ${v}問`}
-                          onClick={() => setSelected({ dt, v, kind: "hour-block" })}
+                          onClick={() => selectHourBlock(dt, v)}
                         />
                       );
                     })}
@@ -547,16 +607,18 @@ export default function StudyPage() {
                         <button
                           key={i}
                           type="button"
+                          data-activity-cell
+                          aria-pressed={isSelected}
                           className={cn(
                             "rounded-[2px] ring-1 transition-shadow",
-                            LEVEL_CLS[levelFixed(v)],
+                            LEVEL_CLS[levelRelative(v, yearMax)],
                             isSelected
                               ? "ring-2 ring-foreground/60 shadow-md"
                               : "ring-border/20"
                           )}
                           style={{ gridColumn: wIdx + 1, gridRow: dIdx + 1 }}
                           title={`${fmtDate(dt)}: ${v}問`}
-                          onClick={() => setSelected({ dt, v, kind: "day" })}
+                          onClick={() => selectDay(dt, v)}
                         />
                       );
                     })}
