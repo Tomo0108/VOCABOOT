@@ -368,7 +368,7 @@ export default function StudyPage() {
             クイックスタート
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3">
+        <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Link
             href="/study/session?mode=new&n=10"
             className={cn(
@@ -389,6 +389,16 @@ export default function StudyPage() {
           >
             ミックス 10語
           </Link>
+          <Link
+            href="/study/session?mode=mix&n=10&offset=0&dir=ja-en"
+            className={cn(
+              buttonVariants({ size: "lg", variant: "outline" }),
+              focusRingLink,
+              "col-span-2 h-14 rounded-2xl shadow-sm transition-colors sm:col-span-1"
+            )}
+          >
+            和→英 10語
+          </Link>
         </CardContent>
       </Card>
 
@@ -400,7 +410,7 @@ export default function StudyPage() {
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">学習記録</CardTitle>
           <p className="text-xs text-muted-foreground">
-            その週・月・年の中で最も多いセルを基準に、解いた問題数に応じて濃さが変わります。セルをタップで詳細、もう一度タップかセル以外をタップで解除できます。
+            濃さは表示期間内の相対値です。セルで件数を表示し、再タップまたは外側タップで解除します。
           </p>
         </CardHeader>
         <CardContent>
