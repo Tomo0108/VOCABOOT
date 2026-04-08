@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
 import { ThemeColorMetaSync } from "@/components/app/theme-color-sync";
+import { ColorPresetSync } from "@/components/app/color-preset-sync";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange
     >
       <ThemeColorMetaSync />
+      <ColorPresetSync />
       {children}
     </ThemeProvider>
   );

@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
 import { cn } from "@/lib/utils";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
+import { COLOR_PRESETS } from "@/lib/color-presets";
 import { exportBackup, importBackup } from "@/lib/backup";
 import { toast } from "sonner";
 import { Download, Monitor, Moon, Settings2, Sun, Upload } from "lucide-react";
@@ -117,6 +118,61 @@ export default function SettingsPage() {
               現在: {resolvedTheme === "dark" ? "ダーク" : "ライト"}
             </p>
           ) : null}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">カラーバリエーション</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            ボタン・強調・フォーカスリングなどのアクセント色を選べます。ライト／ダークの両方でコントラストを調整したプリセットです。
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div
+            className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+            role="listbox"
+            aria-label="カラープリセット"
+          >
+            {COLOR_PRESETS.map((preset) => {
+              const active = prefs?.colorPreset === preset.id;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  disabled={prefs == null}
+                  onClick={() => void updatePrefs({ colorPreset: preset.id })}
+                  className={cn(
+                    "flex w-full flex-col gap-2 rounded-2xl border px-3 py-3 text-left text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    active
+                      ? "border-primary/55 bg-primary/12"
+                      : "border-border/80 bg-background hover:bg-muted/50"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex shrink-0 gap-1" aria-hidden>
+                      <span
+                        className="size-6 rounded-lg border border-border/60 shadow-sm"
+                        style={{ backgroundColor: preset.swatches.primary }}
+                      />
+                      <span
+                        className="size-6 rounded-lg border border-border/60 shadow-sm"
+                        style={{ backgroundColor: preset.swatches.accent }}
+                      />
+                    </span>
+                    <span className="min-w-0 font-semibold leading-tight text-foreground">
+                      {preset.label}
+                    </span>
+                  </div>
+                  <p className="pl-[2.875rem] text-[11px] leading-relaxed text-muted-foreground">
+                    {preset.description}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 
