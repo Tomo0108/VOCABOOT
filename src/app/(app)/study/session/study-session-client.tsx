@@ -139,6 +139,14 @@ function WordAnswerExplainer({
   direction?: QuizDirection;
 }) {
   const correctMeaning = word.meaningJa?.trim() || "—";
+  const pickedWrongJaEnMeaning =
+    direction === "ja-en" && !wasCorrect
+      ? (() => {
+          const w = getAllWords().find((x) => termsMatch(x.term, pickedMeaning));
+          const m = w?.meaningJa?.trim();
+          return m ? quizChoiceMeaningJa(m) : null;
+        })()
+      : null;
   const ex = splitExampleAroundTerm(
     word.exampleEn ?? "",
     word.term,
@@ -153,6 +161,14 @@ function WordAnswerExplainer({
             {direction === "ja-en" ? "選んだ英語" : "選んだ和訳"}
           </p>
           <p className="text-foreground">{pickedMeaning}</p>
+          {direction === "ja-en" && pickedWrongJaEnMeaning ? (
+            <p className="pt-1 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground/80">その語の和訳</span>
+              <span className="mt-0.5 block text-sm text-foreground">
+                {pickedWrongJaEnMeaning}
+              </span>
+            </p>
+          ) : null}
         </div>
       ) : null}
       <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5 text-sm">
@@ -638,6 +654,7 @@ export function StudySessionClient() {
       <Shuffle className="h-5 w-5" />
     );
 
+  const jaEnIcon = <BookOpen className="h-5 w-5" />;
   const mixHasNext = mode === "mix" && offset + words.length < totalWords;
   const seedQ =
     mixSeedState != null && mixSeedState !== ""
@@ -646,11 +663,13 @@ export function StudySessionClient() {
   const dirQuery = quizDirection === "ja-en" ? "&dir=ja-en" : "";
   const mixNextHref = `/study/session?mode=mix&n=${n}&offset=${offset + words.length}${seedQ}${dirQuery}`;
   const sessionScreenTitle =
-    mode === "review"
-      ? "復習"
-      : mode === "new"
-        ? "学習（新規）"
-        : "学習（ミックス）";
+    quizDirection === "ja-en"
+      ? "学習（和→英）"
+      : mode === "review"
+        ? "復習"
+        : mode === "new"
+          ? "学習（新規）"
+          : "学習（ミックス）";
 
   const showPosInQuestion = prefs?.showPartOfSpeechInQuestion ?? true;
 
@@ -662,22 +681,20 @@ export function StudySessionClient() {
   const sessionBadges = (
     <div className="flex shrink-0 items-center gap-1.5">
       <Badge variant="secondary">{modeLabel}</Badge>
-      {quizDirection === "ja-en" ? (
-        <Badge variant="outline" className="font-normal">
-          和→英
-        </Badge>
-      ) : null}
     </div>
   );
+
+  const headerIcon = quizDirection === "ja-en" ? jaEnIcon : modeIcon;
+  const headerRight = quizDirection === "ja-en" ? undefined : sessionBadges;
 
   if (loading) {
     return (
       <Screen
         title={sessionScreenTitle}
         subtitle="語リストを準備しています。"
-        icon={modeIcon}
+        icon={headerIcon}
         backHref="/study"
-        right={sessionBadges}
+        right={headerRight}
       >
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="py-14 text-center text-sm text-muted-foreground">
@@ -702,9 +719,9 @@ export function StudySessionClient() {
       <Screen
         title={sessionScreenTitle}
         subtitle={emptyMsg}
-        icon={modeIcon}
+        icon={headerIcon}
         backHref="/study"
-        right={sessionBadges}
+        right={headerRight}
       >
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="space-y-3 p-6">
@@ -717,7 +734,7 @@ export function StudySessionClient() {
                 "shadow-sm transition-opacity hover:opacity-95"
               )}
             >
-              ミックス10語から始める
+              {quizDirection === "ja-en" ? "和→英で10語始める" : "ミックス10語から始める"}
             </Link>
             <Link
               href="/study"
@@ -896,7 +913,7 @@ export function StudySessionClient() {
       <Screen
         title={sessionScreenTitle}
         subtitle={sessionSubtitle}
-        icon={modeIcon}
+        icon={headerIcon}
         renderBack={
           <button
             type="button"
@@ -911,7 +928,7 @@ export function StudySessionClient() {
             <ChevronLeft className="h-5 w-5" />
           </button>
         }
-        right={sessionBadges}
+        right={headerRight}
       >
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
@@ -972,21 +989,26 @@ export function StudySessionClient() {
                   ) : (
                     <>
                       <p className="sr-only" aria-live="polite" aria-atomic="true">
-                        {idx + 1}語目、和訳{" "}
+                        {idx + 1}語目
+                        {showPosInQuestion && current.partOfSpeech
+                          ? `、${POS_LABEL[current.partOfSpeech]}`
+                          : ""}
+                        、和訳{" "}
                         {quizChoiceMeaningJa(current.meaningJa?.trim() || "—")}
                       </p>
-                      <p className="text-xs font-medium text-muted-foreground">
-                        次の和訳に合う英語を選ぶ
-                      </p>
-                      <p className="break-words text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-3xl">
-                        {quizChoiceMeaningJa(current.meaningJa?.trim() || "—")}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        {showPosInQuestion && current.partOfSpeech ? (
-                          <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
-                        ) : showPosInQuestion ? (
-                          <span className="text-xs text-muted-foreground">品詞未分類</span>
+                      <div className="flex items-start gap-3">
+                        {showPosInQuestion ? (
+                          <div className="shrink-0 pt-0.5">
+                            {current.partOfSpeech ? (
+                              <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">品詞未分類</span>
+                            )}
+                          </div>
                         ) : null}
+                        <p className="min-w-0 flex-1 break-words text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-3xl">
+                          {quizChoiceMeaningJa(current.meaningJa?.trim() || "—")}
+                        </p>
                       </div>
                     </>
                   )}
