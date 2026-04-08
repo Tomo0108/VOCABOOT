@@ -998,11 +998,13 @@ export function StudySessionClient() {
                       </p>
                       <div className="flex items-start gap-3">
                         {showPosInQuestion ? (
-                          <div className="shrink-0 pt-0.5">
+                          <div className="shrink-0 pt-[0.4375rem] sm:pt-[0.5625rem]">
                             {current.partOfSpeech ? (
                               <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
                             ) : (
-                              <span className="text-xs text-muted-foreground">品詞未分類</span>
+                              <span className="flex h-10 max-w-[4rem] items-center text-xs leading-snug text-muted-foreground">
+                                品詞未分類
+                              </span>
                             )}
                           </div>
                         ) : null}
