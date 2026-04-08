@@ -127,16 +127,39 @@ type SessionAnswerRecord = {
   direction: QuizDirection;
 };
 
+function ExplainerPosColumn({
+  showPos,
+  partOfSpeech,
+}: {
+  showPos: boolean;
+  partOfSpeech: ToeicWord["partOfSpeech"];
+}) {
+  if (!showPos) return null;
+  return (
+    <div className="flex shrink-0 items-center self-start">
+      {partOfSpeech ? (
+        <PartOfSpeechDisplay partOfSpeech={partOfSpeech} size="md" />
+      ) : (
+        <span className="flex h-10 max-w-[4rem] items-center text-xs leading-snug text-muted-foreground">
+          品詞未分類
+        </span>
+      )}
+    </div>
+  );
+}
+
 function WordAnswerExplainer({
   word,
   wasCorrect,
   pickedMeaning,
   direction = "en-ja",
+  showPos = true,
 }: {
   word: ToeicWord;
   wasCorrect: boolean;
   pickedMeaning: string;
   direction?: QuizDirection;
+  showPos?: boolean;
 }) {
   const correctMeaning = word.meaningJa?.trim() || "—";
   const pickedWrongJaEnMeaning =
@@ -173,24 +196,31 @@ function WordAnswerExplainer({
       ) : null}
       <div className="space-y-1 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5 text-sm">
         {direction === "ja-en" ? (
-          <>
-            <p className="text-xs font-medium text-muted-foreground">正解の英単語</p>
-            <p className="font-medium text-foreground">{word.term}</p>
-            <p className="mt-2 text-xs font-medium text-muted-foreground">和訳</p>
-            <p className="text-foreground">{correctMeaning}</p>
-          </>
+          <div className="flex items-start gap-3">
+            <ExplainerPosColumn showPos={showPos} partOfSpeech={word.partOfSpeech} />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">正解の英単語</p>
+                <p className="font-medium text-foreground">{word.term}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">和訳</p>
+                <p className="text-foreground">{quizChoiceMeaningJa(correctMeaning)}</p>
+              </div>
+            </div>
+          </div>
         ) : (
-          <>
-            <p className="text-xs font-medium text-muted-foreground">正解の和訳</p>
-            <p className="font-medium text-foreground">{correctMeaning}</p>
-          </>
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">正解の和訳</p>
+            <div className="flex items-start gap-3">
+              <ExplainerPosColumn showPos={showPos} partOfSpeech={word.partOfSpeech} />
+              <p className="min-w-0 flex-1 font-medium leading-snug text-foreground">
+                {quizChoiceMeaningJa(correctMeaning)}
+              </p>
+            </div>
+          </div>
         )}
       </div>
-      {word.partOfSpeech ? (
-        <p className="text-xs text-muted-foreground">
-          品詞：{POS_LABEL[word.partOfSpeech] ?? word.partOfSpeech}
-        </p>
-      ) : null}
 
       {word.exampleEn ? (
         <div className="space-y-2">
@@ -229,11 +259,13 @@ function AnswerReviewDetails({
   wasCorrect,
   pickedMeaning,
   direction = "en-ja",
+  showPos = true,
 }: {
   word: ToeicWord;
   wasCorrect: boolean;
   pickedMeaning: string;
   direction?: QuizDirection;
+  showPos?: boolean;
 }) {
   return (
     <div className="space-y-4 border-t border-border/50 pt-3">
@@ -242,6 +274,7 @@ function AnswerReviewDetails({
         wasCorrect={wasCorrect}
         pickedMeaning={pickedMeaning}
         direction={direction}
+        showPos={showPos}
       />
       <Button
         type="button"
@@ -300,13 +333,36 @@ function FeedbackCard({
           {pending.wasCorrect ? "正解" : "不正解"}
         </div>
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 space-y-1">
-            <CardTitle className="break-words text-2xl font-semibold tracking-tight text-foreground">
-              {word.term}
-            </CardTitle>
-            {showPos && word.partOfSpeech ? (
-              <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="md" />
-            ) : null}
+          <div className="min-w-0 flex-1">
+            {direction === "ja-en" ? (
+              <div className="flex items-start gap-3">
+                {showPos ? (
+                  <div className="shrink-0">
+                    {word.partOfSpeech ? (
+                      <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="md" />
+                    ) : (
+                      <span className="flex h-10 max-w-[4rem] items-center text-xs leading-snug text-muted-foreground">
+                        品詞未分類
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+                <CardTitle className="min-w-0 flex-1 break-words pt-1.5 text-2xl font-semibold leading-snug tracking-tight text-foreground sm:pt-2 sm:text-3xl">
+                  {word.term}
+                </CardTitle>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                {showPos && word.partOfSpeech ? (
+                  <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="md" />
+                ) : showPos ? (
+                  <span className="text-xs text-muted-foreground">品詞未分類</span>
+                ) : null}
+                <CardTitle className="break-words text-2xl font-semibold tracking-tight text-foreground">
+                  {word.term}
+                </CardTitle>
+              </div>
+            )}
           </div>
           <Button
             type="button"
@@ -326,6 +382,7 @@ function FeedbackCard({
           wasCorrect={pending.wasCorrect}
           pickedMeaning={pending.pickedMeaning}
           direction={direction}
+          showPos={showPos}
         />
       </CardContent>
     </>
@@ -826,6 +883,7 @@ export function StudySessionClient() {
                     wasCorrect={r.wasCorrect}
                     pickedMeaning={r.pickedMeaning}
                     direction={r.direction}
+                    showPos={showPosInQuestion}
                   />
                 </div>
               </details>
@@ -998,7 +1056,7 @@ export function StudySessionClient() {
                       </p>
                       <div className="flex items-start gap-3">
                         {showPosInQuestion ? (
-                          <div className="shrink-0 pt-[0.4375rem] sm:pt-[0.5625rem]">
+                          <div className="shrink-0">
                             {current.partOfSpeech ? (
                               <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
                             ) : (
@@ -1008,7 +1066,7 @@ export function StudySessionClient() {
                             )}
                           </div>
                         ) : null}
-                        <p className="min-w-0 flex-1 break-words text-2xl font-semibold leading-snug tracking-tight text-foreground sm:text-3xl">
+                        <p className="min-w-0 flex-1 break-words pt-1.5 text-2xl font-semibold leading-snug tracking-tight text-foreground sm:pt-2 sm:text-3xl">
                           {quizChoiceMeaningJa(current.meaningJa?.trim() || "—")}
                         </p>
                       </div>
