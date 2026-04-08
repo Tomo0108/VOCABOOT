@@ -8,12 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
-import { cn } from "@/lib/utils";
+import { cn, focusRingLink } from "@/lib/utils";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
 import { COLOR_PRESETS } from "@/lib/color-presets";
 import { exportBackup, importBackup } from "@/lib/backup";
 import { toast } from "sonner";
-import { Download, Monitor, Moon, Settings2, Sun, Upload } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Monitor,
+  Moon,
+  Settings2,
+  Sun,
+  Upload,
+} from "lucide-react";
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -54,6 +62,11 @@ export default function SettingsPage() {
       toast.error("エクスポートに失敗しました");
     }
   }, []);
+
+  const selectedColorPreset =
+    prefs != null
+      ? (COLOR_PRESETS.find((p) => p.id === prefs.colorPreset) ?? COLOR_PRESETS[0])
+      : null;
 
   const handleImport = useCallback(async (file: File) => {
     try {
@@ -123,80 +136,108 @@ export default function SettingsPage() {
       </Card>
 
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
-        <CardHeader className="space-y-3 pb-2">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 space-y-1">
-              <CardTitle className="text-base font-semibold">カラーバリエーション</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                現在:{" "}
-                {prefs
-                  ? COLOR_PRESETS.find((p) => p.id === prefs.colorPreset)?.label ?? prefs.colorPreset
-                  : "—"}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <Switch
-                checked={colorPresetPanelOpen}
-                onCheckedChange={setColorPresetPanelOpen}
-                disabled={prefs == null}
-                aria-controls="settings-color-preset-panel"
-                aria-label="カラープリセット一覧を表示"
-              />
-              <span className="text-xs text-muted-foreground">一覧表示</span>
-            </div>
-          </div>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">カラーバリエーション</CardTitle>
         </CardHeader>
-        {colorPresetPanelOpen ? (
-          <CardContent id="settings-color-preset-panel" className="space-y-2 pt-0">
-            <p className="text-xs text-muted-foreground">
-              ボタン・強調・フォーカスリングなどのアクセント色を選べます。ライト／ダークの両方でコントラストを調整したプリセットです。
-            </p>
-            <div
-              className="grid grid-cols-1 gap-2 sm:grid-cols-2"
-              role="listbox"
-              aria-label="カラープリセット"
-            >
-              {COLOR_PRESETS.map((preset) => {
-                const active = prefs?.colorPreset === preset.id;
-                return (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    role="option"
-                    aria-selected={active}
-                    disabled={prefs == null}
-                    onClick={() => void updatePrefs({ colorPreset: preset.id })}
-                    className={cn(
-                      "flex w-full flex-col gap-2 rounded-2xl border px-3 py-3 text-left text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      active
-                        ? "border-primary/55 bg-primary/12"
-                        : "border-border/80 bg-background hover:bg-muted/50"
-                    )}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="flex shrink-0 gap-1" aria-hidden>
-                        <span
-                          className="size-6 rounded-lg border border-border/60 shadow-sm"
-                          style={{ backgroundColor: preset.swatches.primary }}
-                        />
-                        <span
-                          className="size-6 rounded-lg border border-border/60 shadow-sm"
-                          style={{ backgroundColor: preset.swatches.accent }}
-                        />
-                      </span>
-                      <span className="min-w-0 font-semibold leading-tight text-foreground">
-                        {preset.label}
-                      </span>
-                    </div>
-                    <p className="pl-[2.875rem] text-[11px] leading-relaxed text-muted-foreground">
-                      {preset.description}
-                    </p>
-                  </button>
-                );
-              })}
+        <CardContent className="space-y-3">
+          {selectedColorPreset ? (
+            <div className="flex gap-3 rounded-2xl border border-border/80 bg-muted/25 px-3 py-3">
+              <span className="flex shrink-0 gap-1 self-start pt-0.5" aria-hidden>
+                <span
+                  className="size-7 rounded-lg border border-border/60 shadow-sm"
+                  style={{ backgroundColor: selectedColorPreset.swatches.primary }}
+                />
+                <span
+                  className="size-7 rounded-lg border border-border/60 shadow-sm"
+                  style={{ backgroundColor: selectedColorPreset.swatches.accent }}
+                />
+              </span>
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">選択中</p>
+                <p className="text-sm font-semibold text-foreground">{selectedColorPreset.label}</p>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  {selectedColorPreset.description}
+                </p>
+              </div>
             </div>
-          </CardContent>
-        ) : null}
+          ) : (
+            <div className="h-24 animate-pulse rounded-2xl bg-muted/40" aria-hidden />
+          )}
+
+          <button
+            type="button"
+            disabled={prefs == null}
+            aria-expanded={colorPresetPanelOpen}
+            aria-controls="settings-color-preset-panel"
+            onClick={() => setColorPresetPanelOpen((o) => !o)}
+            className={cn(
+              focusRingLink,
+              "flex w-full items-center justify-center gap-2 rounded-2xl border border-border/80 bg-background px-4 py-3 text-sm font-medium text-foreground transition-colors",
+              "hover:bg-muted/60 disabled:pointer-events-none disabled:opacity-50"
+            )}
+          >
+            {colorPresetPanelOpen ? "一覧を閉じる" : "プリセット一覧を開く"}
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                colorPresetPanelOpen && "rotate-180"
+              )}
+              aria-hidden
+            />
+          </button>
+
+          {colorPresetPanelOpen ? (
+            <div id="settings-color-preset-panel" className="space-y-2 pt-1">
+              <p className="text-xs text-muted-foreground">
+                ボタン・強調・フォーカスリングなどのアクセント色を選べます。ライト／ダークの両方でコントラストを調整したプリセットです。
+              </p>
+              <div
+                className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+                role="listbox"
+                aria-label="カラープリセット"
+              >
+                {COLOR_PRESETS.map((preset) => {
+                  const active = prefs?.colorPreset === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      disabled={prefs == null}
+                      onClick={() => void updatePrefs({ colorPreset: preset.id })}
+                      className={cn(
+                        "flex w-full flex-col gap-2 rounded-2xl border px-3 py-3 text-left text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        active
+                          ? "border-primary/55 bg-primary/12"
+                          : "border-border/80 bg-background hover:bg-muted/50"
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex shrink-0 gap-1" aria-hidden>
+                          <span
+                            className="size-6 rounded-lg border border-border/60 shadow-sm"
+                            style={{ backgroundColor: preset.swatches.primary }}
+                          />
+                          <span
+                            className="size-6 rounded-lg border border-border/60 shadow-sm"
+                            style={{ backgroundColor: preset.swatches.accent }}
+                          />
+                        </span>
+                        <span className="min-w-0 font-semibold leading-tight text-foreground">
+                          {preset.label}
+                        </span>
+                      </div>
+                      <p className="pl-[2.875rem] text-[11px] leading-relaxed text-muted-foreground">
+                        {preset.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+        </CardContent>
       </Card>
 
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
