@@ -1,8 +1,8 @@
 /**
  * 単語データの一括監査（実行: npx tsx scripts/audit-vocab-data.mts）
  */
-import { TOEIC_WORDS } from "../src/data/toeic/words.enriched.generated.ts";
-import { getWordDifficulty } from "../src/lib/word-meta.ts";
+import { TOEIC_WORDS } from "../src/data/toeic/words.enriched.generated";
+import { getWordDifficulty } from "../src/lib/word-meta";
 
 const POS = new Set(["n", "v", "adj", "adv", "prep", "conj", "phr"]);
 

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import type { ToeicWord } from "@/lib/vocab";
 import { difficultyLabel, getWordDifficulty } from "@/lib/word-meta";
-import { POS_LABEL } from "@/lib/part-of-speech-labels";
+import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
 import { Volume2 } from "lucide-react";
 
 function speakEnglish(term: string) {
@@ -51,9 +51,7 @@ export function WordDetailPanel({
             {word.term}
           </h1>
           {word.partOfSpeech ? (
-            <p className="text-sm text-muted-foreground">
-              {POS_LABEL[word.partOfSpeech] ?? word.partOfSpeech}
-            </p>
+            <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="lg" />
           ) : (
             <p className="text-sm text-muted-foreground">品詞未分類</p>
           )}

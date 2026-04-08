@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn, focusRingLink } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
-import { POS_LABEL } from "@/lib/part-of-speech-labels";
+import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
 import { quizChoiceMeaningJa } from "@/lib/quiz-meaning";
 import { recordSolved } from "@/lib/activity";
 
@@ -124,12 +124,10 @@ function WordAnswerExplainer({
   word,
   wasCorrect,
   pickedMeaning,
-  posLabel,
 }: {
   word: ToeicWord;
   wasCorrect: boolean;
   pickedMeaning: string;
-  posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string>;
 }) {
   const correctMeaning = word.meaningJa?.trim() || "—";
   const ex = splitExampleAroundTerm(
@@ -151,9 +149,10 @@ function WordAnswerExplainer({
         <p className="font-medium text-foreground">{correctMeaning}</p>
       </div>
       {word.partOfSpeech ? (
-        <p className="text-xs text-muted-foreground">
-          品詞: {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
-        </p>
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-medium text-muted-foreground">品詞</span>
+          <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="sm" />
+        </div>
       ) : null}
 
       {word.exampleEn ? (
@@ -192,12 +191,10 @@ function AnswerReviewDetails({
   word,
   wasCorrect,
   pickedMeaning,
-  posLabel,
 }: {
   word: ToeicWord;
   wasCorrect: boolean;
   pickedMeaning: string;
-  posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string>;
 }) {
   return (
     <div className="space-y-4 border-t border-border/50 pt-3">
@@ -205,7 +202,6 @@ function AnswerReviewDetails({
         word={word}
         wasCorrect={wasCorrect}
         pickedMeaning={pickedMeaning}
-        posLabel={posLabel}
       />
       <Button
         type="button"
@@ -225,7 +221,6 @@ function AnswerReviewDetails({
 function FeedbackCard({
   word,
   pending,
-  posLabel,
   ratingBusy,
   onConfirm,
   onSpeak,
@@ -233,7 +228,6 @@ function FeedbackCard({
 }: {
   word: ToeicWord;
   pending: { wasCorrect: boolean; pickedMeaning: string };
-  posLabel: Record<NonNullable<ToeicWord["partOfSpeech"]>, string>;
   ratingBusy: boolean;
   onConfirm: () => void;
   onSpeak: () => void;
@@ -269,9 +263,7 @@ function FeedbackCard({
               {word.term}
             </CardTitle>
             {showPos && word.partOfSpeech ? (
-              <p className="text-xs text-muted-foreground">
-                {posLabel[word.partOfSpeech] ?? word.partOfSpeech}
-              </p>
+              <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="md" />
             ) : null}
           </div>
           <Button
@@ -291,7 +283,6 @@ function FeedbackCard({
           word={word}
           wasCorrect={pending.wasCorrect}
           pickedMeaning={pending.pickedMeaning}
-          posLabel={posLabel}
         />
       </CardContent>
     </>
@@ -614,7 +605,6 @@ export function StudySessionClient() {
         ? "学習（新規）"
         : "学習（ミックス）";
 
-  const posLabel = POS_LABEL;
   const showPosInQuestion = prefs?.showPartOfSpeechInQuestion ?? true;
 
   if (loading) {
@@ -755,7 +745,6 @@ export function StudySessionClient() {
                     word={r.word}
                     wasCorrect={r.wasCorrect}
                     pickedMeaning={r.pickedMeaning}
-                    posLabel={posLabel}
                   />
                 </div>
               </details>
@@ -885,7 +874,6 @@ export function StudySessionClient() {
           <FeedbackCard
             word={current}
             pending={pendingFeedback}
-            posLabel={posLabel}
             ratingBusy={ratingBusy}
             onConfirm={confirmFeedback}
             onSpeak={() => speakEnglish(current.term)}
@@ -903,9 +891,7 @@ export function StudySessionClient() {
                     {current.term}
                   </CardTitle>
                   {showPosInQuestion && current.partOfSpeech ? (
-                    <p className="text-xs text-muted-foreground">
-                      {posLabel[current.partOfSpeech] ?? current.partOfSpeech}
-                    </p>
+                    <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
                   ) : showPosInQuestion ? (
                     <p className="text-xs text-muted-foreground">品詞未分類</p>
                   ) : null}
