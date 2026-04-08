@@ -4,9 +4,19 @@ import { cn } from "@/lib/utils";
 
 type Pos = NonNullable<ToeicWord["partOfSpeech"]>;
 
-/** 名詞は国語辞典風に「名」を四角枠で表示 */
-const nounBoxClass =
-  "inline-flex aspect-square shrink-0 items-center justify-center rounded-[2px] border border-border bg-background font-semibold leading-none text-foreground shadow-sm";
+/** 角丸正方形内の1字（国語辞典・参考書の品詞略号に近い） */
+const POS_CHAR: Record<Pos, string> = {
+  n: "名",
+  v: "動",
+  adj: "形",
+  adv: "副",
+  prep: "前",
+  conj: "接",
+  phr: "句",
+};
+
+const boxClass =
+  "inline-flex aspect-square shrink-0 items-center justify-center rounded-lg border border-border/90 bg-background font-semibold leading-none tracking-tight text-foreground shadow-sm ring-1 ring-foreground/5";
 
 export function PartOfSpeechDisplay({
   partOfSpeech,
@@ -18,32 +28,23 @@ export function PartOfSpeechDisplay({
   /** sm=解説内、md=問題カード、lg=単語詳細 */
   size?: "sm" | "md" | "lg";
 }) {
-  const boxSize =
+  const dim =
     size === "sm"
-      ? "h-4 min-w-4 text-[9px]"
+      ? "h-8 min-w-8 text-sm"
       : size === "lg"
-        ? "h-6 min-w-6 text-[11px]"
-        : "h-5 min-w-5 text-[10px]";
-
-  if (partOfSpeech === "n") {
-    return (
-      <span
-        className={cn(nounBoxClass, boxSize, className)}
-        title="名詞"
-        aria-label="名詞"
-      >
-        名
-      </span>
-    );
-  }
+        ? "h-12 min-w-12 text-lg"
+        : "h-10 min-w-10 text-base";
 
   const label = POS_LABEL[partOfSpeech];
-  const textSize =
-    size === "sm" ? "text-xs" : size === "lg" ? "text-sm" : "text-xs";
+  const ch = POS_CHAR[partOfSpeech];
 
   return (
-    <span className={cn("text-muted-foreground", textSize, className)} title={label}>
-      {label}
+    <span
+      className={cn(boxClass, dim, className)}
+      title={label}
+      aria-label={label}
+    >
+      {ch}
     </span>
   );
 }
