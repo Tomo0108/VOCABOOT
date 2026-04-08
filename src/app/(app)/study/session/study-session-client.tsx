@@ -324,6 +324,7 @@ export function StudySessionClient() {
   } | null>(null);
   const restoredRef = useRef(false);
   const autoSpokenForQuestionRef = useRef<string | null>(null);
+  const advancingFeedbackRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -499,14 +500,15 @@ export function StudySessionClient() {
   ]);
 
   const applyRatingAndAdvance = useCallback(async () => {
-    if (!current || ratingBusy || !pendingFeedback) return;
+    if (!current || !pendingFeedback) return;
+    if (advancingFeedbackRef.current) return;
+    advancingFeedbackRef.current = true;
     const { rating, wasCorrect, pickedMeaning } = pendingFeedback;
     setRatingBusy(true);
     try {
       await rateWord(current.id, rating, {
         compactSchedule: prefs?.compactSchedule ?? false,
       });
-      await recordSolved(1);
       setRatingCounts((prev) => ({ ...prev, [rating]: prev[rating] + 1 }));
       const nextResults = [
         ...sessionResults,
@@ -517,19 +519,14 @@ export function StudySessionClient() {
       setPendingFeedback(null);
       setWords((w) => reshuffleRemainingForDifficulty(w, nextIdx, nextResults));
       setIdx(nextIdx);
+      void recordSolved(1).catch(() => {});
     } catch {
       toast.error("記録を保存できませんでした。もう一度お試しください。");
     } finally {
+      advancingFeedbackRef.current = false;
       setRatingBusy(false);
     }
-  }, [
-    current,
-    pendingFeedback,
-    prefs?.compactSchedule,
-    ratingBusy,
-    idx,
-    sessionResults,
-  ]);
+  }, [current, pendingFeedback, prefs?.compactSchedule, idx, sessionResults]);
 
   const pickMeaning = useCallback(
     (picked: string) => {

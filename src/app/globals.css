@@ -140,14 +140,13 @@
  * cubic-bezier は終端でゆっくり止まる減速（ネイティブ寄り）。
  */
 @layer components {
+  /* transform は祖先に残ると fixed の基準や iOS のスクロール／タップに影響しうるため opacity のみ */
   @keyframes route-transition-enter {
     from {
       opacity: 0;
-      transform: translate3d(0, 0.5rem, 0) scale(0.992) translateZ(0);
     }
     to {
       opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1) translateZ(0);
     }
   }
 
