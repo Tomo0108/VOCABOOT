@@ -883,18 +883,24 @@ export function StudySessionClient() {
           <>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 space-y-1">
+                <div className="min-w-0 space-y-2">
                   <p className="sr-only" aria-live="polite" aria-atomic="true">
-                    {idx + 1}語目、単語 {current.term}
+                    {idx + 1}語目
+                    {showPosInQuestion && current.partOfSpeech
+                      ? `、${POS_LABEL[current.partOfSpeech]}`
+                      : ""}
+                    、単語 {current.term}
                   </p>
-                  <CardTitle className="break-words text-3xl font-semibold tracking-tight text-foreground">
-                    {current.term}
-                  </CardTitle>
-                  {showPosInQuestion && current.partOfSpeech ? (
-                    <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
-                  ) : showPosInQuestion ? (
-                    <p className="text-xs text-muted-foreground">品詞未分類</p>
-                  ) : null}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    {showPosInQuestion && current.partOfSpeech ? (
+                      <PartOfSpeechDisplay partOfSpeech={current.partOfSpeech} size="md" />
+                    ) : showPosInQuestion ? (
+                      <span className="text-xs text-muted-foreground">品詞未分類</span>
+                    ) : null}
+                    <CardTitle className="break-words text-3xl font-semibold tracking-tight text-foreground">
+                      {current.term}
+                    </CardTitle>
+                  </div>
                   {current.tags && current.tags.length > 0 ? (
                     <p className="text-xs text-muted-foreground">
                       {current.tags.join(" · ")}
