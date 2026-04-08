@@ -48,6 +48,7 @@ import {
 import { cn, focusRingLink } from "@/lib/utils";
 import { splitExampleAroundTerm } from "@/lib/example-svoc";
 import { PartOfSpeechDisplay } from "@/components/app/part-of-speech-display";
+import { POS_LABEL } from "@/lib/part-of-speech-labels";
 import { quizChoiceMeaningJa } from "@/lib/quiz-meaning";
 import { recordSolved } from "@/lib/activity";
 
@@ -149,10 +150,9 @@ function WordAnswerExplainer({
         <p className="font-medium text-foreground">{correctMeaning}</p>
       </div>
       {word.partOfSpeech ? (
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="font-medium text-muted-foreground">品詞</span>
-          <PartOfSpeechDisplay partOfSpeech={word.partOfSpeech} size="sm" />
-        </div>
+        <p className="text-xs text-muted-foreground">
+          品詞：{POS_LABEL[word.partOfSpeech] ?? word.partOfSpeech}
+        </p>
       ) : null}
 
       {word.exampleEn ? (
