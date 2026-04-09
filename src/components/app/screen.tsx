@@ -8,6 +8,7 @@ import Link from "next/link";
 export function Screen({
   title,
   subtitle,
+  titleHelp,
   icon,
   right,
   backHref,
@@ -16,6 +17,8 @@ export function Screen({
 }: {
   title: string;
   subtitle?: string;
+  /** タイトル横のヘルプ（? マークなど） */
+  titleHelp?: ReactNode;
   icon?: ReactNode;
   right?: ReactNode;
   backHref?: string;
@@ -56,14 +59,19 @@ export function Screen({
                 {icon}
               </span>
             ) : null}
-            <h1
-              className={cn(
-                "min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground",
-                !hasVisibleTitle && "sr-only"
-              )}
-            >
-              {hasVisibleTitle ? title : "学習"}
-            </h1>
+            <div className="flex min-w-0 flex-1 items-center gap-1">
+              <h1
+                className={cn(
+                  "min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground",
+                  !hasVisibleTitle && "sr-only"
+                )}
+              >
+                {hasVisibleTitle ? title : "学習"}
+              </h1>
+              {titleHelp ? (
+                <span className="inline-flex shrink-0 items-center">{titleHelp}</span>
+              ) : null}
+            </div>
           </div>
           {right ? <div className="shrink-0">{right}</div> : null}
         </div>

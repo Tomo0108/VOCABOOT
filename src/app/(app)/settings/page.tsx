@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
+import { HelpHint } from "@/components/app/help-hint";
 import { cn, focusRingLink } from "@/lib/utils";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
 import { COLOR_PRESETS } from "@/lib/color-presets";
@@ -83,12 +84,21 @@ export default function SettingsPage() {
   return (
     <Screen
       title="設定"
-      subtitle="表示と復習の間隔を調整できます。"
+      titleHelp={
+        <HelpHint label="設定画面について">
+          <p>表示モード、学習まわりの挙動、データのバックアップなどをここで変更できます。</p>
+        </HelpHint>
+      }
       icon={<Settings2 className="h-5 w-5" />}
     >
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">外観</CardTitle>
+          <div className="flex items-center gap-1.5">
+            <CardTitle className="text-base font-semibold">外観</CardTitle>
+            <HelpHint label="外観の説明" className="size-7">
+              <p>ライト・ダーク・自動（端末の配色設定に合わせる）から選べます。</p>
+            </HelpHint>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {!mounted ? (
@@ -245,12 +255,14 @@ export default function SettingsPage() {
           <CardTitle className="text-base font-semibold">学習</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-sm font-medium">復習間隔を短くする</div>
-              <div className="text-xs text-muted-foreground">
-                次の復習までの日数をやや短めに設定します
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-start gap-1.5">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">復習間隔を短くする</div>
               </div>
+              <HelpHint label="復習間隔を短くする" className="mt-0.5 size-7">
+                <p>次の復習までの日数をやや短めに設定します。</p>
+              </HelpHint>
             </div>
             <Switch
               checked={prefs?.compactSchedule ?? false}
@@ -259,10 +271,14 @@ export default function SettingsPage() {
             />
           </div>
           <Separator />
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-sm font-medium">例文を表示する</div>
-              <div className="text-xs text-muted-foreground">和訳と一緒に例文を出します</div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-start gap-1.5">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">例文を表示する</div>
+              </div>
+              <HelpHint label="例文を表示する" className="mt-0.5 size-7">
+                <p>和訳と一緒に例文を出します。</p>
+              </HelpHint>
             </div>
             <Switch
               checked={prefs?.showExample ?? true}
@@ -271,12 +287,14 @@ export default function SettingsPage() {
             />
           </div>
           <Separator />
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-sm font-medium">問題表示時に英語を自動再生</div>
-              <div className="text-xs text-muted-foreground">
-                4択が出たタイミングで1回だけ読み上げます（既定はオフ）
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-start gap-1.5">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">問題表示時に英語を自動再生</div>
               </div>
+              <HelpHint label="問題表示時に英語を自動再生" className="mt-0.5 size-7">
+                <p>4択が出たタイミングで1回だけ読み上げます（既定はオフ）。和→英モードでは出題中は読み上げません。</p>
+              </HelpHint>
             </div>
             <Switch
               checked={prefs?.autoSpeakEnglish ?? false}
@@ -285,10 +303,14 @@ export default function SettingsPage() {
             />
           </div>
           <Separator />
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-sm font-medium">問題文に品詞を表示</div>
-              <div className="text-xs text-muted-foreground">単語の下に品詞ラベルを出します</div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-start gap-1.5">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">問題文に品詞を表示</div>
+              </div>
+              <HelpHint label="問題文に品詞を表示" className="mt-0.5 size-7">
+                <p>単語の横（または和訳の横）に品詞ラベルを出します。</p>
+              </HelpHint>
             </div>
             <Switch
               checked={prefs?.showPartOfSpeechInQuestion ?? true}
@@ -302,12 +324,14 @@ export default function SettingsPage() {
       </Card>
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">データ</CardTitle>
+          <div className="flex items-center gap-1.5">
+            <CardTitle className="text-base font-semibold">データ</CardTitle>
+            <HelpHint label="データのエクスポート・インポート" className="size-7">
+              <p>学習の進捗と設定をファイルに保存・復元できます。端末の移行にも使えます。</p>
+            </HelpHint>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">
-            学習の進捗と設定をファイルに保存・復元できます。端末の移行にも使えます。
-          </p>
           <div className="flex gap-2">
             <Button
               variant="outline"

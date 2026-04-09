@@ -20,6 +20,7 @@ import {
 } from "@/lib/session-order";
 import { getPreferences, type AppPreferences } from "@/lib/preferences";
 import { Screen } from "@/components/app/screen";
+import { HelpHint } from "@/components/app/help-hint";
 import { Badge } from "@/components/ui/badge";
 import type { Rating } from "@/lib/srs";
 import { randomSeed, shuffleRandom, shuffleWithSeed } from "@/lib/shuffle";
@@ -700,7 +701,6 @@ export function StudySessionClient() {
     return (
       <Screen
         title={sessionScreenTitle}
-        subtitle="語リストを準備しています。"
         icon={headerIcon}
         backHref="/study"
         right={headerRight}
@@ -727,7 +727,6 @@ export function StudySessionClient() {
     return (
       <Screen
         title={sessionScreenTitle}
-        subtitle={emptyMsg}
         icon={headerIcon}
         backHref="/study"
         right={headerRight}
@@ -765,7 +764,12 @@ export function StudySessionClient() {
     return (
       <Screen
         title="結果"
-        subtitle={`${words.length}問お疲れさまでした。振り返りで例文を確認できます。`}
+        subtitle={`${words.length}問お疲れさまでした。`}
+        titleHelp={
+          <HelpHint label="結果画面について" className="size-7">
+            <p>振り返りで例文を確認できます。</p>
+          </HelpHint>
+        }
         icon={<Check className="h-5 w-5" />}
         backHref="/study"
       >
@@ -793,10 +797,12 @@ export function StudySessionClient() {
 
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">振り返り</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              各問題を開くと、和訳と例文を確認できます。
-            </p>
+            <div className="flex items-center gap-1.5">
+              <CardTitle className="text-base font-semibold">振り返り</CardTitle>
+              <HelpHint label="振り返りの見方" className="size-7">
+                <p>各問題を開くと、和訳と例文を確認できます。</p>
+              </HelpHint>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {sessionResults.map((r, i) => (
@@ -940,7 +946,11 @@ export function StudySessionClient() {
     <>
       <Screen
         title={sessionScreenTitle}
-        subtitle={sessionSubtitle}
+        titleHelp={
+          <HelpHint label="出題の進め方" className="size-7">
+            <p>{sessionSubtitle}</p>
+          </HelpHint>
+        }
         icon={headerIcon}
         renderBack={
           <button

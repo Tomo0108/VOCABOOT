@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
+import { HelpHint } from "@/components/app/help-hint";
 import { BookOpen, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActivityBuckets, type ActivityBuckets } from "@/lib/activity";
@@ -358,15 +359,24 @@ export default function StudyPage() {
   return (
     <Screen
       title="学習"
-      subtitle="10語ずつ、短いセットで進めます。"
+      titleHelp={
+        <HelpHint label="学習タブについて">
+          <p>10語ずつ短いセットで進めます。下のクイックスタートからモードを選べます。</p>
+        </HelpHint>
+      }
       icon={<BookOpen className="h-5 w-5" />}
     >
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden />
-            クイックスタート
-          </CardTitle>
+          <div className="flex items-center gap-1.5">
+            <CardTitle className="flex flex-1 items-center gap-2 text-base font-semibold">
+              <Sparkles className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+              クイックスタート
+            </CardTitle>
+            <HelpHint label="クイックスタート" className="size-7 shrink-0">
+              <p>新規（未学習）、ミックス（リスト順のシャッフル）、和→英（和訳から英単語4択）から始められます。</p>
+            </HelpHint>
+          </div>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Link
@@ -408,10 +418,14 @@ export default function StudyPage() {
         className="rounded-2xl border border-border/80 bg-card shadow-sm"
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">学習記録</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            濃さは表示期間内の相対値です。セルで件数を表示し、再タップまたは外側タップで解除します。
-          </p>
+          <div className="flex items-center gap-1.5">
+            <CardTitle className="text-base font-semibold">学習記録</CardTitle>
+            <HelpHint label="学習記録の見方" className="size-7">
+              <p>
+                濃さは表示期間内の相対値です。セルで件数を表示し、再タップまたは外側タップで解除します。
+              </p>
+            </HelpHint>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={handleTabChange}>
