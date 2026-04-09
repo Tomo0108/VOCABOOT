@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { StudySessionClient } from "./study-session-client";
+import { StudySessionRouteClient } from "./study-session-route-client";
 
 export default function StudySessionPage() {
   return (
     <Suspense>
-      <StudySessionClient />
+      <StudySessionRouteClient />
     </Suspense>
   );
 }

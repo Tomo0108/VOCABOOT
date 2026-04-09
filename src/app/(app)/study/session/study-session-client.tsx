@@ -341,6 +341,7 @@ export function StudySessionClient() {
   const mode = (sp.get("mode") as Mode | null) ?? "mix";
   const n = Math.max(1, Math.min(50, Number(sp.get("n") ?? "10") || 10));
   const offset = Math.max(0, Number(sp.get("offset") ?? "0") || 0);
+  const seedParam = sp.get("seed") ?? "";
   const quizDirection: QuizDirection =
     sp.get("dir") === "ja-en" ? "ja-en" : "en-ja";
 
@@ -407,7 +408,7 @@ export function StudySessionClient() {
     return () => {
       cancelled = true;
     };
-  }, [mode, n, offset, pathname, quizDirection]);
+  }, [mode, n, offset, pathname, quizDirection, seedParam]);
 
   useEffect(() => {
     let cancelled = false;
@@ -841,45 +842,48 @@ export function StudySessionClient() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             {mixHasNext ? (
-              <Link
-                href={mixNextHref}
+              <button
+                type="button"
+                onClick={() => router.push(mixNextHref)}
                 className={cn(
                   focusRingLink,
                   "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary font-medium text-primary-foreground",
-                  "shadow-sm transition-opacity hover:opacity-95"
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90"
                 )}
               >
                 次の{n}語を続ける
                 <ChevronRight className="ml-1 h-4 w-4 opacity-90" aria-hidden />
-              </Link>
+              </button>
             ) : null}
 
             {mode === "new" && moreNew ? (
-              <Link
-                href={`/study/session?mode=new&n=${n}${dirQuery}`}
+              <button
+                type="button"
+                onClick={() => router.push(`/study/session?mode=new&n=${n}${dirQuery}`)}
                 className={cn(
                   focusRingLink,
                   "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary font-medium text-primary-foreground",
-                  "shadow-sm transition-opacity hover:opacity-95"
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90"
                 )}
               >
                 次の{n}語を続ける
                 <ChevronRight className="ml-1 h-4 w-4 opacity-90" aria-hidden />
-              </Link>
+              </button>
             ) : null}
 
             {mode === "review" && moreReview ? (
-              <Link
-                href={`/study/session?mode=review&n=${n}${dirQuery}`}
+              <button
+                type="button"
+                onClick={() => router.push(`/study/session?mode=review&n=${n}${dirQuery}`)}
                 className={cn(
                   focusRingLink,
                   "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary font-medium text-primary-foreground",
-                  "shadow-sm transition-opacity hover:opacity-95"
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90"
                 )}
               >
                 <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
                 復習を続ける
-              </Link>
+              </button>
             ) : null}
 
             <Link
