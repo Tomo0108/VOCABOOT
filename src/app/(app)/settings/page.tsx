@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Screen } from "@/components/app/screen";
-import { HelpHint } from "@/components/app/help-hint";
+import { HelpHint, HelpSection } from "@/components/app/help-hint";
 import { cn, focusRingLink } from "@/lib/utils";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
 import { COLOR_PRESETS } from "@/lib/color-presets";
@@ -242,17 +242,19 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <CardTitle className="text-base font-semibold">学習</CardTitle>
             <HelpHint label="学習オプションの説明">
-              <p className="font-medium text-foreground">復習間隔を短くする</p>
-              <p>
-                次の復習予定をやや手前に寄せ、同じ語が早めに再出題されやすくします。忘れにくくしたいとき向けです。語ごとの履歴はそのまま蓄積されます。
-              </p>
-              <p className="pt-1 font-medium text-foreground">問題表示時に英語を自動再生</p>
-              <p>
-                4択が表示されたタイミングで英単語を1回だけ読み上げます（既定はオフ）。静かな環境や連続学習ではご注意ください。
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                和→英モードでは出題画面では読み上げません（英→和のときのみ有効）。
-              </p>
+              <HelpSection title="復習間隔を短くする">
+                <p>
+                  次の復習予定をやや手前に寄せ、同じ語が早めに再出題されやすくします。忘れにくくしたいとき向けです。語ごとの履歴はそのまま蓄積されます。
+                </p>
+              </HelpSection>
+              <HelpSection
+                title="問題表示時に英語を自動再生"
+                note="和→英モードでは出題画面では読み上げません（英→和のときのみ有効）。"
+              >
+                <p>
+                  4択が表示されたタイミングで英単語を1回だけ読み上げます（既定はオフ）。静かな環境や連続学習ではご注意ください。
+                </p>
+              </HelpSection>
             </HelpHint>
           </div>
         </CardHeader>

@@ -20,7 +20,7 @@ import {
 } from "@/lib/session-order";
 import { getPreferences, type AppPreferences } from "@/lib/preferences";
 import { Screen } from "@/components/app/screen";
-import { HelpHint } from "@/components/app/help-hint";
+import { HelpHint, HelpSection } from "@/components/app/help-hint";
 import { Badge } from "@/components/ui/badge";
 import type { Rating } from "@/lib/srs";
 import { randomSeed, shuffleRandom, shuffleWithSeed } from "@/lib/shuffle";
@@ -686,15 +686,23 @@ export function StudySessionClient() {
   const sessionHelpContent =
     quizDirection === "ja-en" ? (
       <>
-        <p>和訳の意味に合う英単語を、4つの選択肢から1つ選びます。</p>
-        <p>回答後に正誤が分かり、続けて例文や補足の和訳を確認できます。</p>
+        <HelpSection title="出題">
+          <p>和訳の意味に合う英単語を、4つの選択肢から1つ選びます。</p>
+        </HelpSection>
+        <HelpSection title="解答後">
+          <p>正誤が表示されたあと、例文や補足の和訳を確認できます。</p>
+        </HelpSection>
       </>
     ) : (
       <>
-        <p>表示された英単語に合う和訳を、4つの選択肢から1つ選びます。</p>
-        <p>
-          各問のあとに正誤と例文を確認でき、セット終了後は「結果」画面の一覧からもう一度たどれます。
-        </p>
+        <HelpSection title="出題">
+          <p>表示された英単語に合う和訳を、4つの選択肢から1つ選びます。</p>
+        </HelpSection>
+        <HelpSection title="解答後・セット終了後">
+          <p>
+            各問のあとに正誤と例文を確認できます。セットが終わると「結果」画面の一覧から、もう一度内容をたどれます。
+          </p>
+        </HelpSection>
       </>
     );
 

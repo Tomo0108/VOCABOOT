@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
-import { HelpHint } from "@/components/app/help-hint";
+import { HelpHint, HelpSection } from "@/components/app/help-hint";
 import { BookOpen, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getActivityBuckets, type ActivityBuckets } from "@/lib/activity";
@@ -408,15 +408,19 @@ export default function StudyPage() {
           <div className="flex items-center gap-1.5">
             <CardTitle className="text-base font-semibold">学習記録</CardTitle>
             <HelpHint label="学習記録の見方">
-              <p>
-                色の濃さは、その期間（週間・月間・年間の表示範囲）のなかでの相対的な学習件数を表します。同じ期間内でのばらつきの目安にしてください。
-              </p>
-              <p>
-                セルをタップするとその枠の件数が表示されます。もう一度タップするか、カレンダー外をタップすると選択を解除します。
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                週間は曜日×時間帯、月間・年間は日付のマス目で集計しています。
-              </p>
+              <HelpSection title="色の濃さの意味">
+                <p>
+                  週間・月間・年間タブそれぞれの表示範囲のなかでの、相対的な学習件数を表します。期間をまたいでは比較できません。同じ期間内でのばらつきの目安にしてください。
+                </p>
+              </HelpSection>
+              <HelpSection title="セルの操作">
+                <p>
+                  セルをタップするとその枠の件数が表示されます。もう一度タップするか、カレンダー外をタップすると選択を解除します。
+                </p>
+              </HelpSection>
+              <HelpSection title="集計の単位">
+                <p>週間は曜日×時間帯のマス、月間・年間は日付ごとのマスに集計しています。</p>
+              </HelpSection>
             </HelpHint>
           </div>
         </CardHeader>

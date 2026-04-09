@@ -12,8 +12,42 @@ type HelpHintProps = {
   className?: string;
 };
 
+export type HelpSectionProps = {
+  /** 論点の見出し */
+  title: string;
+  children: ReactNode;
+  /** 注意書き（小さめ・控えめ） */
+  note?: ReactNode;
+  className?: string;
+};
+
+/**
+ * ヘルプ本文を論点ごとに区切る。見出し＋本文（＋任意の注記）。
+ */
+export function HelpSection({ title, children, note, className }: HelpSectionProps) {
+  return (
+    <section
+      className={cn(
+        "space-y-2 border-t border-border/50 pt-3.5 first:border-t-0 first:pt-0",
+        className
+      )}
+    >
+      <h3 className="text-sm font-semibold leading-snug tracking-tight text-popover-foreground">
+        {title}
+      </h3>
+      <div className="space-y-2 text-[0.8125rem] leading-[1.6] text-popover-foreground/88 [&_p]:m-0">
+        {children}
+      </div>
+      {note != null ? (
+        <div className="mt-1 text-[0.6875rem] leading-relaxed text-muted-foreground">{note}</div>
+      ) : null}
+    </section>
+  );
+}
+
 /**
  * 補足説明用。角枠の小さな「i」ボタンで Popover を開く。
+ * 本文は {@link HelpSection} で区切ると読みやすい。
  */
 export function HelpHint({ label, children, className }: HelpHintProps) {
   return (
@@ -36,12 +70,12 @@ export function HelpHint({ label, children, className }: HelpHintProps) {
         <Popover.Positioner side="bottom" align="start" sideOffset={6} className="z-[120]">
           <Popover.Popup
             className={cn(
-              "max-h-[min(70vh,26rem)] max-w-[min(22rem,calc(100vw-2rem))] overflow-y-auto rounded-xl border border-border/80",
-              "bg-popover p-3.5 text-xs leading-relaxed text-popover-foreground shadow-md outline-none",
+              "max-h-[min(75vh,28rem)] max-w-[min(24rem,calc(100vw-2rem))] overflow-y-auto overscroll-contain rounded-xl border border-border/80",
+              "bg-popover px-4 py-4 text-popover-foreground shadow-md outline-none",
               "ring-1 ring-black/5 dark:ring-white/10"
             )}
           >
-            <div className="space-y-2.5 [&_p]:text-popover-foreground/95">{children}</div>
+            <div className="flex flex-col gap-0">{children}</div>
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
