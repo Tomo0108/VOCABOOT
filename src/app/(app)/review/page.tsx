@@ -6,7 +6,6 @@ import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { cn, focusRingLink } from "@/lib/utils";
 import { Screen } from "@/components/app/screen";
-import { HelpHint } from "@/components/app/help-hint";
 import { getHomeStats, getProgress } from "@/lib/progress";
 import { getAllWords } from "@/lib/vocab";
 import { Clock, RotateCcw, Sparkles } from "lucide-react";
@@ -74,27 +73,10 @@ export default function ReviewPage() {
   const hasDue = !dueLoading && due != null && due > 0;
 
   return (
-    <Screen
-      title="復習"
-      titleHelp={
-        <HelpHint label="復習について">
-          <p>期限が来た語を優先して出します。</p>
-        </HelpHint>
-      }
-      icon={<Clock className="h-5 w-5" />}
-    >
+    <Screen title="復習" icon={<Clock className="h-5 w-5" />}>
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
-          <div className="flex items-center gap-1.5">
-            <CardTitle className="text-base font-semibold">復習予定</CardTitle>
-            <HelpHint label="復習予定の補足" className="size-7">
-              {hasDue ? (
-                <p>まとめて最大30語まで復習できます。</p>
-              ) : (
-                <p>復習待ちの語はありません。学習タブから新しい語を進めましょう。</p>
-              )}
-            </HelpHint>
-          </div>
+          <CardTitle className="text-base font-semibold">復習予定</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
@@ -112,6 +94,11 @@ export default function ReviewPage() {
               )}
             </span>
           </div>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {hasDue
+              ? "期限が来た語を優先して出題します。まとめて最大30語まで復習できます。"
+              : "復習待ちの語はありません。学習タブから新しい語を進めましょう。"}
+          </p>
           {hasDue ? (
             <Link
               href={`/study/session?mode=review&n=${reviewN}`}

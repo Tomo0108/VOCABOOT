@@ -683,10 +683,20 @@ export function StudySessionClient() {
 
   const showPosInQuestion = prefs?.showPartOfSpeechInQuestion ?? true;
 
-  const sessionSubtitle =
-    quizDirection === "ja-en"
-      ? "和訳の意味に合う英単語を4つから1つ選びます。各問のあとに正誤と例文を確認できます。"
-      : "表示された和訳のうち、正しいものを1つ選びます。各問のあとに正誤と例文を確認でき、セット終了後にもう一度振り返れます。";
+  const sessionHelpContent =
+    quizDirection === "ja-en" ? (
+      <>
+        <p>和訳の意味に合う英単語を、4つの選択肢から1つ選びます。</p>
+        <p>回答後に正誤が分かり、続けて例文や補足の和訳を確認できます。</p>
+      </>
+    ) : (
+      <>
+        <p>表示された英単語に合う和訳を、4つの選択肢から1つ選びます。</p>
+        <p>
+          各問のあとに正誤と例文を確認でき、セット終了後は「結果」画面の一覧からもう一度たどれます。
+        </p>
+      </>
+    );
 
   const sessionBadges = (
     <div className="flex shrink-0 items-center gap-1.5">
@@ -764,12 +774,7 @@ export function StudySessionClient() {
     return (
       <Screen
         title="結果"
-        subtitle={`${words.length}問お疲れさまでした。`}
-        titleHelp={
-          <HelpHint label="結果画面について" className="size-7">
-            <p>振り返りで例文を確認できます。</p>
-          </HelpHint>
-        }
+        subtitle={`${words.length}問お疲れさまでした。下の「振り返り」で和訳・例文を開いて確認できます。`}
         icon={<Check className="h-5 w-5" />}
         backHref="/study"
       >
@@ -797,12 +802,7 @@ export function StudySessionClient() {
 
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardHeader className="pb-2">
-            <div className="flex items-center gap-1.5">
-              <CardTitle className="text-base font-semibold">振り返り</CardTitle>
-              <HelpHint label="振り返りの見方" className="size-7">
-                <p>各問題を開くと、和訳と例文を確認できます。</p>
-              </HelpHint>
-            </div>
+            <CardTitle className="text-base font-semibold">振り返り</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {sessionResults.map((r, i) => (
@@ -947,9 +947,7 @@ export function StudySessionClient() {
       <Screen
         title={sessionScreenTitle}
         titleHelp={
-          <HelpHint label="出題の進め方" className="size-7">
-            <p>{sessionSubtitle}</p>
-          </HelpHint>
+          <HelpHint label="このモードの進め方">{sessionHelpContent}</HelpHint>
         }
         icon={headerIcon}
         renderBack={

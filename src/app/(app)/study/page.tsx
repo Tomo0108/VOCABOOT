@@ -357,26 +357,13 @@ export default function StudyPage() {
   const yGap = 2;
 
   return (
-    <Screen
-      title="学習"
-      titleHelp={
-        <HelpHint label="学習タブについて">
-          <p>10語ずつ短いセットで進めます。下のクイックスタートからモードを選べます。</p>
-        </HelpHint>
-      }
-      icon={<BookOpen className="h-5 w-5" />}
-    >
+    <Screen title="学習" icon={<BookOpen className="h-5 w-5" />}>
       <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader>
-          <div className="flex items-center gap-1.5">
-            <CardTitle className="flex flex-1 items-center gap-2 text-base font-semibold">
-              <Sparkles className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-              クイックスタート
-            </CardTitle>
-            <HelpHint label="クイックスタート" className="size-7 shrink-0">
-              <p>新規（未学習）、ミックス（リスト順のシャッフル）、和→英（和訳から英単語4択）から始められます。</p>
-            </HelpHint>
-          </div>
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <Sparkles className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            クイックスタート
+          </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Link
@@ -420,9 +407,15 @@ export default function StudyPage() {
         <CardHeader className="pb-2">
           <div className="flex items-center gap-1.5">
             <CardTitle className="text-base font-semibold">学習記録</CardTitle>
-            <HelpHint label="学習記録の見方" className="size-7">
+            <HelpHint label="学習記録の見方">
               <p>
-                濃さは表示期間内の相対値です。セルで件数を表示し、再タップまたは外側タップで解除します。
+                色の濃さは、その期間（週間・月間・年間の表示範囲）のなかでの相対的な学習件数を表します。同じ期間内でのばらつきの目安にしてください。
+              </p>
+              <p>
+                セルをタップするとその枠の件数が表示されます。もう一度タップするか、カレンダー外をタップすると選択を解除します。
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                週間は曜日×時間帯、月間・年間は日付のマス目で集計しています。
               </p>
             </HelpHint>
           </div>

@@ -59,7 +59,7 @@ export function Screen({
                 {icon}
               </span>
             ) : null}
-            <div className="flex min-w-0 flex-1 items-center gap-1">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
               <h1
                 className={cn(
                   "min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground",
@@ -69,7 +69,7 @@ export function Screen({
                 {hasVisibleTitle ? title : "学習"}
               </h1>
               {titleHelp ? (
-                <span className="inline-flex shrink-0 items-center">{titleHelp}</span>
+                <span className="inline-flex shrink-0 items-center self-center">{titleHelp}</span>
               ) : null}
             </div>
           </div>
