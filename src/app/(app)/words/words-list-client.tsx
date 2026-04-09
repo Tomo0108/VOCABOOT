@@ -183,7 +183,7 @@ export function WordsListClient() {
       </Card>
 
       <p className="text-center text-xs text-muted-foreground tabular-nums">
-        {loading ? "—" : `${filtered.length} 語`}
+        {loading ? "—" : `${filtered.length} 単語`}
       </p>
     </Screen>
   );

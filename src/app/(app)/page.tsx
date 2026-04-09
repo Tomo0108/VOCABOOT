@@ -114,8 +114,8 @@ export default function Home() {
               className="text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl"
             >
               {primaryIsReview
-                ? `復習が ${due} 語あります`
-                : "10語ずつ、始めましょう"}
+                ? `復習が ${due} 単語あります`
+                : "10単語ずつ、始めましょう"}
             </p>
 
             <div
@@ -152,7 +152,7 @@ export default function Home() {
                   {!primaryIsReview ? (
                     <Sparkles className="h-5 w-5 opacity-90" aria-hidden />
                   ) : null}
-                  {primaryIsReview ? "新規10語へ" : "新規10語を始める"}
+                  {primaryIsReview ? "新規10単語へ" : "新規10単語を始める"}
                 </Link>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function Home() {
             />
           </div>
           <p className="text-[11px] text-muted-foreground">
-            {touched} / {total} 語を学習済み
+            {touched} / {total} 単語を学習済み
           </p>
         </div>
       ) : null}
@@ -217,7 +217,7 @@ export default function Home() {
           )}
         >
           <p className="text-xs font-medium text-muted-foreground">
-            収録語数
+            収録単語数
           </p>
           <StatFigure loading={statsLoading} value={total} />
         </Link>

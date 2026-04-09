@@ -374,7 +374,7 @@ export default function StudyPage() {
               "h-14 rounded-2xl shadow-sm transition-colors"
             )}
           >
-            新規 10語
+            新規 10単語
           </Link>
           <Link
             href="/study/session?mode=mix&n=10&offset=0"
@@ -384,7 +384,7 @@ export default function StudyPage() {
               "h-14 rounded-2xl shadow-sm transition-colors"
             )}
           >
-            ミックス 10語
+            ミックス 10単語
           </Link>
           <Link
             href="/study/session?mode=mix&n=10&offset=0&dir=ja-en"
@@ -394,7 +394,7 @@ export default function StudyPage() {
               "col-span-2 h-14 rounded-2xl shadow-sm transition-colors sm:col-span-1"
             )}
           >
-            和→英 10語
+            和→英 10単語
           </Link>
         </CardContent>
       </Card>

@@ -80,7 +80,7 @@ export default function ReviewPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">いま復習できる語</span>
+            <span className="text-muted-foreground">いま復習できる単語</span>
             <span
               className="font-semibold tabular-nums text-foreground"
               aria-busy={dueLoading}
@@ -90,14 +90,14 @@ export default function ReviewPage() {
               ) : due == null ? (
                 "—"
               ) : (
-                `${due} 語`
+                `${due} 単語`
               )}
             </span>
           </div>
           <p className="text-xs leading-relaxed text-muted-foreground">
             {hasDue
-              ? "期限が来た語を優先して出題します。まとめて最大30語まで復習できます。"
-              : "復習待ちの語はありません。学習タブから新しい語を進めましょう。"}
+              ? "期限が来た単語を優先して出題します。まとめて最大30単語まで復習できます。"
+              : "復習待ちの単語はありません。学習タブから学習を進めましょう。"}
           </p>
           {hasDue ? (
             <Link
@@ -109,7 +109,7 @@ export default function ReviewPage() {
               )}
             >
               <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
-              復習を始める（{Math.min(reviewN, due ?? reviewN)} 語）
+              復習を始める（{Math.min(reviewN, due ?? reviewN)} 単語）
             </Link>
           ) : (
             <Link
@@ -121,7 +121,7 @@ export default function ReviewPage() {
               )}
             >
               <Sparkles className="mr-2 h-4 w-4" aria-hidden />
-              10語を進める
+              10単語を進める
             </Link>
           )}
         </CardContent>
@@ -141,7 +141,7 @@ export default function ReviewPage() {
                 >
                   <span className="text-muted-foreground">{g.label}</span>
                   <span className="font-medium tabular-nums text-foreground">
-                    {g.count} 語
+                    {g.count} 単語
                   </span>
                 </div>
               ))}

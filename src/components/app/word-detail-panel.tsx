@@ -99,7 +99,7 @@ export function WordDetailPanel({
           ) : null}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">この語には例文が登録されていません。</p>
+        <p className="text-sm text-muted-foreground">この単語には例文が登録されていません。</p>
       )}
     </div>
   );

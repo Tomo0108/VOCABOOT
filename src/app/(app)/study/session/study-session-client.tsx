@@ -123,7 +123,7 @@ function buildMeaningQuizOptions(current: ToeicWord, all: ToeicWord[]): string[]
     wrong.push(distractorPool[wrong.length % distractorPool.length]!);
   }
   while (wrong.length < 3) {
-    wrong.push(`（ほかの語義 ${wrong.length + 1}）`);
+    wrong.push(`（ほかの意味 ${wrong.length + 1}）`);
   }
   return shuffleRandom([correct, ...wrong.slice(0, 3)]);
 }
@@ -171,7 +171,7 @@ function WordAnswerExplainer({
           <p className="text-foreground">{pickedMeaning}</p>
           {direction === "ja-en" && pickedWrongJaEnMeaning ? (
             <p className="pt-1 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground/80">その語の和訳</span>
+              <span className="font-medium text-foreground/80">その単語の和訳</span>
               <span className="mt-0.5 block text-sm text-foreground">
                 {pickedWrongJaEnMeaning}
               </span>
@@ -224,7 +224,7 @@ function WordAnswerExplainer({
           ) : null}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">この語には例文が登録されていません。</p>
+        <p className="text-sm text-muted-foreground">この単語には例文が登録されていません。</p>
       )}
     </div>
   );
@@ -735,12 +735,12 @@ export function StudySessionClient() {
   if (!loading && words.length === 0) {
     const emptyMsg =
       mode === "review"
-        ? "いま期限どおりの語はありません。"
+        ? "いま期限どおりの単語はありません。"
         : mode === "new"
-          ? "未学習の語が残っていません。"
+          ? "未学習の単語が残っていません。"
           : offset >= totalWords
-            ? "指定位置が語リストの終端を超えています。"
-            : "この条件では語が選べませんでした。";
+            ? "指定位置が単語リストの終端を超えています。"
+            : "この条件では単語が選べませんでした。";
 
     return (
       <Screen
@@ -760,7 +760,7 @@ export function StudySessionClient() {
                 "shadow-sm transition-opacity hover:opacity-95"
               )}
             >
-              {quizDirection === "ja-en" ? "和→英で10語始める" : "ミックス10語から始める"}
+              {quizDirection === "ja-en" ? "和→英で10単語始める" : "ミックス10単語から始める"}
             </Link>
             <Link
               href="/study"
@@ -873,7 +873,7 @@ export function StudySessionClient() {
                   "shadow-sm transition-opacity hover:opacity-95 active:opacity-90 disabled:opacity-60"
                 )}
               >
-                次の{n}語を始める
+                次の{n}単語を始める
                 <ChevronRight className="ml-1 h-4 w-4 opacity-90" aria-hidden />
               </button>
             ) : null}
@@ -895,7 +895,7 @@ export function StudySessionClient() {
                   "shadow-sm transition-opacity hover:opacity-95 active:opacity-90 disabled:opacity-60"
                 )}
               >
-                次の{n}語を始める
+                次の{n}単語を始める
                 <ChevronRight className="ml-1 h-4 w-4 opacity-90" aria-hidden />
               </button>
             ) : null}
@@ -988,7 +988,7 @@ export function StudySessionClient() {
             getAriaValueText={(_formatted, v) => {
               const pct = v ?? percent;
               const cur = Math.min(idx + 1, words.length);
-              return `${cur}語目、全${words.length}語、進捗${Math.round(pct)}パーセント`;
+              return `${cur}単語目、全${words.length}単語、進捗${Math.round(pct)}パーセント`;
             }}
           />
         </CardContent>
@@ -1013,7 +1013,7 @@ export function StudySessionClient() {
                   {quizDirection === "en-ja" ? (
                     <>
                       <p className="sr-only" aria-live="polite" aria-atomic="true">
-                        {idx + 1}語目
+                        {idx + 1}単語目
                         {showPosInQuestion && current.partOfSpeech
                           ? `、${POS_LABEL[current.partOfSpeech]}`
                           : ""}
@@ -1033,7 +1033,7 @@ export function StudySessionClient() {
                   ) : (
                     <>
                       <p className="sr-only" aria-live="polite" aria-atomic="true">
-                        {idx + 1}語目
+                        {idx + 1}単語目
                         {showPosInQuestion && current.partOfSpeech
                           ? `、${POS_LABEL[current.partOfSpeech]}`
                           : ""}
@@ -1109,7 +1109,7 @@ export function StudySessionClient() {
             <DialogDescription>
               {pendingFeedback
                 ? "結果確認中の問題があります。このまま戻ると、ホームの「続きから」で同じ位置から再開できます。"
-                : "未回答の語が残っています。このまま戻ると、ホームの「続きから」で同じ位置から再開できます。"}
+                : "未回答の単語が残っています。このまま戻ると、ホームの「続きから」で同じ位置から再開できます。"}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:flex-row sm:justify-end">

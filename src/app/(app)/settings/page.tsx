@@ -73,7 +73,7 @@ export default function SettingsPage() {
     try {
       const text = await file.text();
       const result = await importBackup(text);
-      toast.success(`${result.wordCount} 語の進捗を復元しました`);
+      toast.success(`${result.wordCount} 単語の進捗を復元しました`);
       const p = await getPreferences();
       setPrefs(p);
     } catch {
@@ -244,7 +244,7 @@ export default function SettingsPage() {
             <HelpHint label="学習オプションの説明">
               <HelpSection title="復習間隔を短くする">
                 <p>
-                  次の復習予定をやや手前に寄せ、同じ語が早めに再出題されやすくします。忘れにくくしたいとき向けです。語ごとの履歴はそのまま蓄積されます。
+                  次の復習予定をやや手前に寄せ、同じ単語が早めに再出題されやすくします。忘れにくくしたいとき向けです。単語ごとの履歴はそのまま蓄積されます。
                 </p>
               </HelpSection>
               <HelpSection
