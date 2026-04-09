@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,9 +73,8 @@ async function loadSessionWords(
   mixSeed: string | null
 ): Promise<ToeicWord[]> {
   const all = getAllWords();
-  const progress = await getProgress();
   if (mode === "review") {
-    const ids = await getDueWordIds();
+    const [progress, ids] = await Promise.all([getProgress(), getDueWordIds()]);
     const map = new Map(all.map((w) => [w.id, w]));
     const list = ids
       .slice(0, n)
@@ -76,6 +82,7 @@ async function loadSessionWords(
       .filter((w): w is ToeicWord => Boolean(w));
     return orderSessionCandidates(list, progress);
   }
+  const progress = await getProgress();
   if (mode === "new") {
     const unseen = all.filter((w) => !progress[w.id]);
     const picked = shuffleRandom(unseen).slice(0, n);
@@ -342,8 +349,11 @@ export function StudySessionClient() {
   const n = Math.max(1, Math.min(50, Number(sp.get("n") ?? "10") || 10));
   const offset = Math.max(0, Number(sp.get("offset") ?? "0") || 0);
   const seedParam = sp.get("seed") ?? "";
+  /** 同一クエリでの再入（新規・復習の「続き」）時にナビ／再マウントを確実にする */
+  const sessionNonce = sp.get("_t") ?? "";
   const quizDirection: QuizDirection =
     sp.get("dir") === "ja-en" ? "ja-en" : "en-ja";
+  const [navPending, startNavTransition] = useTransition();
 
   const [words, setWords] = useState<ToeicWord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -367,48 +377,44 @@ export function StudySessionClient() {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setIdx(0);
+    setSessionResults([]);
+    setPendingFeedback(null);
 
-    queueMicrotask(() => {
-      if (cancelled) return;
-      setLoading(true);
-      setIdx(0);
-      setSessionResults([]);
-      setPendingFeedback(null);
-
-      void (async () => {
-        let mixSeed: string | null = null;
-        if (mode === "mix") {
-          const params = new URLSearchParams(
-            typeof window !== "undefined" ? window.location.search : ""
+    void (async () => {
+      let mixSeed: string | null = null;
+      if (mode === "mix") {
+        const params = new URLSearchParams(
+          typeof window !== "undefined" ? window.location.search : ""
+        );
+        mixSeed = params.get("seed");
+        if (!mixSeed && typeof window !== "undefined") {
+          mixSeed = randomSeed();
+          params.set("seed", mixSeed);
+          const qs = params.toString();
+          window.history.replaceState(
+            null,
+            "",
+            qs ? `${pathname}?${qs}` : pathname
           );
-          mixSeed = params.get("seed");
-          if (!mixSeed && typeof window !== "undefined") {
-            mixSeed = randomSeed();
-            params.set("seed", mixSeed);
-            const qs = params.toString();
-            window.history.replaceState(
-              null,
-              "",
-              qs ? `${pathname}?${qs}` : pathname
-            );
-          }
-          if (!cancelled) setMixSeedState(mixSeed);
-        } else {
-          if (!cancelled) setMixSeedState(null);
         }
+        if (!cancelled) setMixSeedState(mixSeed);
+      } else {
+        if (!cancelled) setMixSeedState(null);
+      }
 
-        const w = await loadSessionWords(mode, n, offset, mixSeed);
-        if (!cancelled) {
-          setWords(w);
-          setLoading(false);
-        }
-      })();
-    });
+      const w = await loadSessionWords(mode, n, offset, mixSeed);
+      if (!cancelled) {
+        setWords(w);
+        setLoading(false);
+      }
+    })();
 
     return () => {
       cancelled = true;
     };
-  }, [mode, n, offset, pathname, quizDirection, seedParam]);
+  }, [mode, n, offset, pathname, quizDirection, seedParam, sessionNonce]);
 
   useEffect(() => {
     let cancelled = false;
@@ -837,21 +843,23 @@ export function StudySessionClient() {
         </Card>
 
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">次へ</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+          <CardContent className="space-y-3 pt-6 text-sm">
             {mixHasNext ? (
               <button
                 type="button"
-                onClick={() => router.push(mixNextHref)}
+                disabled={navPending}
+                onClick={() =>
+                  startNavTransition(() => {
+                    router.push(mixNextHref);
+                  })
+                }
                 className={cn(
                   focusRingLink,
                   "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary font-medium text-primary-foreground",
-                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90"
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90 disabled:opacity-60"
                 )}
               >
-                次の{n}語を続ける
+                次の{n}語を始める
                 <ChevronRight className="ml-1 h-4 w-4 opacity-90" aria-hidden />
               </button>
             ) : null}
@@ -859,14 +867,21 @@ export function StudySessionClient() {
             {mode === "new" && moreNew ? (
               <button
                 type="button"
-                onClick={() => router.push(`/study/session?mode=new&n=${n}${dirQuery}`)}
+                disabled={navPending}
+                onClick={() =>
+                  startNavTransition(() => {
+                    router.push(
+                      `/study/session?mode=new&n=${n}${dirQuery}&_t=${Date.now()}`
+                    );
+                  })
+                }
                 className={cn(
                   focusRingLink,
                   "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary font-medium text-primary-foreground",
-                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90"
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90 disabled:opacity-60"
                 )}
               >
-                次の{n}語を続ける
+                次の{n}語を始める
                 <ChevronRight className="ml-1 h-4 w-4 opacity-90" aria-hidden />
               </button>
             ) : null}
@@ -874,11 +889,18 @@ export function StudySessionClient() {
             {mode === "review" && moreReview ? (
               <button
                 type="button"
-                onClick={() => router.push(`/study/session?mode=review&n=${n}${dirQuery}`)}
+                disabled={navPending}
+                onClick={() =>
+                  startNavTransition(() => {
+                    router.push(
+                      `/study/session?mode=review&n=${n}${dirQuery}&_t=${Date.now()}`
+                    );
+                  })
+                }
                 className={cn(
                   focusRingLink,
                   "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary font-medium text-primary-foreground",
-                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90"
+                  "shadow-sm transition-opacity hover:opacity-95 active:opacity-90 disabled:opacity-60"
                 )}
               >
                 <RotateCcw className="mr-2 h-4 w-4" aria-hidden />
