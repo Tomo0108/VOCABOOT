@@ -687,20 +687,20 @@ export function StudySessionClient() {
     quizDirection === "ja-en" ? (
       <>
         <HelpSection title="出題">
-          <p>和訳の意味に合う英単語を、4つの選択肢から1つ選びます。</p>
+          <p>和訳の意味に合う英単語を、4択から1つ選びます。</p>
         </HelpSection>
         <HelpSection title="解答後">
-          <p>正誤が表示されたあと、例文や補足の和訳を確認できます。</p>
+          <p>正誤のあと、例文や補足の和訳を確認できます。</p>
         </HelpSection>
       </>
     ) : (
       <>
         <HelpSection title="出題">
-          <p>表示された英単語に合う和訳を、4つの選択肢から1つ選びます。</p>
+          <p>表示されている英単語に合う和訳を、4択から1つ選びます。</p>
         </HelpSection>
         <HelpSection title="解答後・セット終了後">
           <p>
-            各問のあとに正誤と例文を確認できます。セットが終わると「結果」画面の一覧から、もう一度内容をたどれます。
+            各問のあとに正誤と例文を確認できます。セット終了後は「結果」画面の一覧から、内容をいつでも振り返れます。
           </p>
         </HelpSection>
       </>

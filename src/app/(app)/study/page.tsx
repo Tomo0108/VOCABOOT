@@ -409,17 +409,21 @@ export default function StudyPage() {
             <CardTitle className="text-base font-semibold">学習記録</CardTitle>
             <HelpHint label="学習記録の見方">
               <HelpSection title="色の濃さの意味">
-                <p>
-                  週間・月間・年間タブそれぞれの表示範囲のなかでの、相対的な学習件数を表します。期間をまたいでは比較できません。同じ期間内でのばらつきの目安にしてください。
-                </p>
+                <ul>
+                  <li>週間・月間・年間の各タブで、その表示範囲のなかでの相対的な学習件数を示します。</li>
+                  <li>タブをまたいで濃さを比較することはできません。同じ期間内のばらつきの目安に使ってください。</li>
+                </ul>
               </HelpSection>
               <HelpSection title="セルの操作">
-                <p>
-                  セルをタップするとその枠の件数が表示されます。もう一度タップするか、カレンダー外をタップすると選択を解除します。
-                </p>
+                <ul>
+                  <li>セルをタップすると、その枠の学習件数を表示します。</li>
+                  <li>もう一度タップするか、カレンダー外をタップすると選択を解除します。</li>
+                </ul>
               </HelpSection>
               <HelpSection title="集計の単位">
-                <p>週間は曜日×時間帯のマス、月間・年間は日付ごとのマスに集計しています。</p>
+                <p>
+                  週間は<strong>曜日×時間帯</strong>のマス、月間・年間は<strong>日付</strong>ごとのマスに集計しています。
+                </p>
               </HelpSection>
             </HelpHint>
           </div>
