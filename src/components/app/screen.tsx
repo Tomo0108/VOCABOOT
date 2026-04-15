@@ -46,7 +46,7 @@ export function Screen({
   return (
     <div className="space-y-4">
       <header className="space-y-1.5">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-1.5">
             {backControl ? (
               <span className="inline-flex shrink-0">{backControl}</span>
@@ -62,7 +62,7 @@ export function Screen({
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <h1
                 className={cn(
-                  "min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground",
+                  "min-w-0 flex-1 break-words text-xl font-semibold tracking-tight text-foreground",
                   !hasVisibleTitle && "sr-only"
                 )}
               >
@@ -73,7 +73,11 @@ export function Screen({
               ) : null}
             </div>
           </div>
-          {right ? <div className="shrink-0">{right}</div> : null}
+          {right ? (
+            <div className="flex w-full min-w-0 shrink-0 flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:max-w-[min(100%,28rem)]">
+              {right}
+            </div>
+          ) : null}
         </div>
         {subtitle ? (
           <p className="text-sm text-muted-foreground">{subtitle}</p>

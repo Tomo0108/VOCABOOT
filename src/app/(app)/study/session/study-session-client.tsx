@@ -762,10 +762,15 @@ export function StudySessionClient() {
     );
 
   const sessionBadges = (
-    <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-      <Badge variant="secondary">{modeLabel}</Badge>
+    <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
+      <Badge variant="secondary" className="shrink-0">
+        {modeLabel}
+      </Badge>
       {sessionLevels.length < 3 ? (
-        <Badge variant="outline" className="max-w-[11rem] truncate font-normal">
+        <Badge
+          variant="outline"
+          className="inline-flex h-auto min-h-5 max-w-full shrink items-start overflow-visible py-1 leading-snug whitespace-normal break-words font-normal [overflow-wrap:anywhere]"
+        >
           {formatDifficultyLevelsBadge(sessionLevels)}
         </Badge>
       ) : null}
