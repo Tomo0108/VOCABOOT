@@ -11,6 +11,8 @@ export function Screen({
   titleHelp,
   icon,
   right,
+  /** タイトル行の直下に置く補足（例: 学習セッションの難易度） */
+  headerAccessory,
   backHref,
   renderBack,
   children,
@@ -21,6 +23,7 @@ export function Screen({
   titleHelp?: ReactNode;
   icon?: ReactNode;
   right?: ReactNode;
+  headerAccessory?: ReactNode;
   backHref?: string;
   renderBack?: ReactNode;
   children: ReactNode;
@@ -46,7 +49,7 @@ export function Screen({
   return (
     <div className="space-y-4">
       <header className="space-y-1.5">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-1.5">
             {backControl ? (
               <span className="inline-flex shrink-0">{backControl}</span>
@@ -74,11 +77,12 @@ export function Screen({
             </div>
           </div>
           {right ? (
-            <div className="flex w-full min-w-0 shrink-0 flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:max-w-[min(100%,28rem)]">
-              {right}
-            </div>
+            <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">{right}</div>
           ) : null}
         </div>
+        {headerAccessory ? (
+          <div className="pt-0.5">{headerAccessory}</div>
+        ) : null}
         {subtitle ? (
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         ) : null}

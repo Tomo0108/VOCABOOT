@@ -86,10 +86,22 @@ function parseDifficultyQueryParam(sp: URLSearchParams): WordDifficulty[] | null
   return [...set].sort((a, b) => a - b);
 }
 
-function formatDifficultyLevelsBadge(levels: WordDifficulty[]): string {
-  if (levels.length === 3) return "難易度：すべて";
-  if (levels.length === 1) return `難易度：${difficultyLabel(levels[0]!)}のみ`;
-  return `難易度：${levels.map((d) => difficultyLabel(d)).join("・")}`;
+/** タイトル下の専用行（親で絞り込み中のみ渡す） */
+function SessionDifficultyRow({ levels }: { levels: WordDifficulty[] }) {
+  const detail =
+    levels.length === 1
+      ? `${difficultyLabel(levels[0]!)}のみ`
+      : levels.map((d) => difficultyLabel(d)).join("・");
+  return (
+    <div
+      className="rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5"
+      role="status"
+      aria-label={`出題の難易度 ${detail}`}
+    >
+      <p className="text-[11px] font-medium text-muted-foreground">出題の難易度</p>
+      <p className="mt-0.5 text-sm font-medium leading-snug text-foreground">{detail}</p>
+    </div>
+  );
 }
 
 async function loadSessionWords(
@@ -761,24 +773,15 @@ export function StudySessionClient() {
       </>
     );
 
-  const sessionBadges = (
-    <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
-      <Badge variant="secondary" className="shrink-0">
-        {modeLabel}
-      </Badge>
-      {sessionLevels.length < 3 ? (
-        <Badge
-          variant="outline"
-          className="inline-flex h-auto min-h-5 max-w-full shrink items-start overflow-visible py-1 leading-snug whitespace-normal break-words font-normal [overflow-wrap:anywhere]"
-        >
-          {formatDifficultyLevelsBadge(sessionLevels)}
-        </Badge>
-      ) : null}
-    </div>
-  );
-
   const headerIcon = quizDirection === "ja-en" ? jaEnIcon : modeIcon;
-  const headerRight = quizDirection === "ja-en" ? undefined : sessionBadges;
+  const headerRight =
+    quizDirection === "ja-en" ? undefined : (
+      <Badge variant="secondary">{modeLabel}</Badge>
+    );
+  const difficultyHeaderAccessory =
+    sessionLevels.length < 3 ? (
+      <SessionDifficultyRow levels={sessionLevels} />
+    ) : undefined;
 
   if (loading) {
     return (
@@ -787,6 +790,7 @@ export function StudySessionClient() {
         icon={headerIcon}
         backHref="/study"
         right={headerRight}
+        headerAccessory={difficultyHeaderAccessory}
       >
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="py-14 text-center text-sm text-muted-foreground">
@@ -813,6 +817,7 @@ export function StudySessionClient() {
         icon={headerIcon}
         backHref="/study"
         right={headerRight}
+        headerAccessory={difficultyHeaderAccessory}
       >
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <CardContent className="space-y-3 p-6">
@@ -1038,6 +1043,7 @@ export function StudySessionClient() {
           </button>
         }
         right={headerRight}
+        headerAccessory={difficultyHeaderAccessory}
       >
         <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <CardHeader className="pb-2">
