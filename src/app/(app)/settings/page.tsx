@@ -285,6 +285,7 @@ export default function SettingsPage() {
               復習間隔を短くする
             </span>
             <Switch
+              size="lg"
               className="shrink-0"
               checked={prefs?.compactSchedule ?? false}
               disabled={prefs == null}
@@ -303,6 +304,7 @@ export default function SettingsPage() {
                   {difficultyLabel(level)}
                 </span>
                 <Switch
+                  size="lg"
                   className="shrink-0"
                   checked={prefs?.difficultyLevels?.includes(level) ?? true}
                   disabled={prefs == null}
@@ -315,6 +317,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <span className="min-w-0 flex-1 text-sm font-medium leading-snug">例文を表示する</span>
             <Switch
+              size="lg"
               className="shrink-0"
               checked={prefs?.showExample ?? true}
               disabled={prefs == null}
@@ -327,6 +330,7 @@ export default function SettingsPage() {
               問題表示時に英語を自動再生
             </span>
             <Switch
+              size="lg"
               className="shrink-0"
               checked={prefs?.autoSpeakEnglish ?? false}
               disabled={prefs == null}
@@ -337,6 +341,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <span className="min-w-0 flex-1 text-sm font-medium leading-snug">問題文に品詞を表示</span>
             <Switch
+              size="lg"
               className="shrink-0"
               checked={prefs?.showPartOfSpeechInQuestion ?? true}
               disabled={prefs == null}
