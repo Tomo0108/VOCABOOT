@@ -12,7 +12,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { getAllWords, type ToeicWord } from "@/lib/vocab";
+import { getAllWords, getWordById, type ToeicWord } from "@/lib/vocab";
 import { getDueWordIds, getProgress, rateWord } from "@/lib/progress";
 import {
   orderSessionCandidates,
@@ -64,16 +64,42 @@ import {
   type QuizDirection,
 } from "@/lib/quiz-term";
 import { recordSolved } from "@/lib/activity";
+import {
+  difficultyLabel,
+  filterWordsByDifficulty,
+  getWordDifficulty,
+  type WordDifficulty,
+} from "@/lib/word-meta";
 
 type Mode = "new" | "mix" | "review";
+
+/** `diff=1` / `diff=1,3` など。無効・未指定は null（設定に従う） */
+function parseDifficultyQueryParam(sp: URLSearchParams): WordDifficulty[] | null {
+  const raw = sp.get("diff")?.trim();
+  if (!raw) return null;
+  const set = new Set<WordDifficulty>();
+  for (const part of raw.split(/[,+]/)) {
+    const n = Number(part.trim());
+    if (n === 1 || n === 2 || n === 3) set.add(n);
+  }
+  if (set.size === 0) return null;
+  return [...set].sort((a, b) => a - b);
+}
+
+function formatDifficultyLevelsBadge(levels: WordDifficulty[]): string {
+  if (levels.length === 3) return "難易度：すべて";
+  if (levels.length === 1) return `難易度：${difficultyLabel(levels[0]!)}のみ`;
+  return `難易度：${levels.map((d) => difficultyLabel(d)).join("・")}`;
+}
 
 async function loadSessionWords(
   mode: Mode,
   n: number,
   offset: number,
-  mixSeed: string | null
+  mixSeed: string | null,
+  difficultyLevels: WordDifficulty[]
 ): Promise<ToeicWord[]> {
-  const all = getAllWords();
+  const all = filterWordsByDifficulty(getAllWords(), difficultyLevels);
   if (mode === "review") {
     const [progress, ids] = await Promise.all([getProgress(), getDueWordIds()]);
     const map = new Map(all.map((w) => [w.id, w]));
@@ -372,6 +398,10 @@ export function StudySessionClient() {
     pickedMeaning: string;
     wasCorrect: boolean;
   } | null>(null);
+  /** 出題プールの難易度（設定または URL の `diff`） */
+  const [sessionLevels, setSessionLevels] = useState<WordDifficulty[]>([1, 2, 3]);
+  /** true のとき `diff` を次ナビにも付けて上書きを維持する */
+  const [difficultyFromUrl, setDifficultyFromUrl] = useState(false);
   const restoredRef = useRef(false);
   const autoSpokenForQuestionRef = useRef<string | null>(null);
   const advancingFeedbackRef = useRef(false);
@@ -384,11 +414,20 @@ export function StudySessionClient() {
     setPendingFeedback(null);
 
     void (async () => {
+      const params = new URLSearchParams(
+        typeof window !== "undefined" ? window.location.search : sp.toString()
+      );
+      const prefs = await getPreferences();
+      const parsedDiff = parseDifficultyQueryParam(params);
+      const difficultyLevels = parsedDiff ?? prefs.difficultyLevels;
+      const fromUrl = parsedDiff != null;
+      if (!cancelled) {
+        setDifficultyFromUrl(fromUrl);
+        setSessionLevels(difficultyLevels);
+      }
+
       let mixSeed: string | null = null;
       if (mode === "mix") {
-        const params = new URLSearchParams(
-          typeof window !== "undefined" ? window.location.search : ""
-        );
         mixSeed = params.get("seed");
         if (!mixSeed && typeof window !== "undefined") {
           mixSeed = randomSeed();
@@ -405,7 +444,7 @@ export function StudySessionClient() {
         if (!cancelled) setMixSeedState(null);
       }
 
-      const w = await loadSessionWords(mode, n, offset, mixSeed);
+      const w = await loadSessionWords(mode, n, offset, mixSeed, difficultyLevels);
       if (!cancelled) {
         setWords(w);
         setLoading(false);
@@ -415,7 +454,7 @@ export function StudySessionClient() {
     return () => {
       cancelled = true;
     };
-  }, [mode, n, offset, pathname, quizDirection, seedParam, sessionNonce]);
+  }, [mode, n, offset, pathname, quizDirection, seedParam, sessionNonce, sp.toString()]);
 
   useEffect(() => {
     let cancelled = false;
@@ -439,7 +478,10 @@ export function StudySessionClient() {
   const done = !loading && words.length > 0 && idx >= words.length;
   const inQuiz =
     !loading && words.length > 0 && idx < words.length;
-  const totalWords = getAllWords().length;
+  const totalWords = useMemo(
+    () => filterWordsByDifficulty(getAllWords(), sessionLevels).length,
+    [sessionLevels]
+  );
   const percent = Math.round(
     (Math.min(idx, words.length) / Math.max(words.length, 1)) * 100
   );
@@ -450,25 +492,34 @@ export function StudySessionClient() {
     void (async () => {
       const progress = await getProgress();
       if (cancelled) return;
-      const unseen = getAllWords().filter((w) => !progress[w.id]);
+      const unseen = filterWordsByDifficulty(
+        getAllWords().filter((w) => !progress[w.id]),
+        sessionLevels
+      );
       setMoreNew(unseen.length > 0);
     })();
     return () => {
       cancelled = true;
     };
-  }, [done, mode]);
+  }, [done, mode, sessionLevels]);
 
   useEffect(() => {
     if (!done || mode !== "review") return;
     let cancelled = false;
     void (async () => {
       const ids = await getDueWordIds();
-      if (!cancelled) setMoreReview(ids.length > 0);
+      if (cancelled) return;
+      const levelSet = new Set(sessionLevels);
+      const dueInLevels = ids.some((id) => {
+        const w = getWordById(id);
+        return w ? levelSet.has(getWordDifficulty(w)) : false;
+      });
+      setMoreReview(dueInLevels);
     })();
     return () => {
       cancelled = true;
     };
-  }, [done, mode]);
+  }, [done, mode, sessionLevels]);
 
   useEffect(() => {
     if (done) void clearSessionCheckpoint();
@@ -671,7 +722,11 @@ export function StudySessionClient() {
       ? `&seed=${encodeURIComponent(mixSeedState)}`
       : "";
   const dirQuery = quizDirection === "ja-en" ? "&dir=ja-en" : "";
-  const mixNextHref = `/study/session?mode=mix&n=${n}&offset=${offset + words.length}${seedQ}${dirQuery}`;
+  const diffPreserveQuery =
+    difficultyFromUrl && sessionLevels.length > 0
+      ? `&diff=${sessionLevels.join(",")}`
+      : "";
+  const mixNextHref = `/study/session?mode=mix&n=${n}&offset=${offset + words.length}${seedQ}${dirQuery}${diffPreserveQuery}`;
   const sessionScreenTitle =
     quizDirection === "ja-en"
       ? "学習（和→英）"
@@ -707,8 +762,13 @@ export function StudySessionClient() {
     );
 
   const sessionBadges = (
-    <div className="flex shrink-0 items-center gap-1.5">
+    <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
       <Badge variant="secondary">{modeLabel}</Badge>
+      {sessionLevels.length < 3 ? (
+        <Badge variant="outline" className="max-w-[11rem] truncate font-normal">
+          {formatDifficultyLevelsBadge(sessionLevels)}
+        </Badge>
+      ) : null}
     </div>
   );
 
@@ -753,7 +813,7 @@ export function StudySessionClient() {
           <CardContent className="space-y-3 p-6">
             <p className="text-sm text-muted-foreground">{emptyMsg}</p>
             <Link
-              href={`/study/session?mode=mix&n=10&offset=0${dirQuery}`}
+              href={`/study/session?mode=mix&n=10&offset=0${dirQuery}${diffPreserveQuery}`}
               className={cn(
                 focusRingLink,
                 "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary px-4 font-medium text-primary-foreground",
@@ -885,7 +945,7 @@ export function StudySessionClient() {
                 onClick={() =>
                   startNavTransition(() => {
                     router.push(
-                      `/study/session?mode=new&n=${n}${dirQuery}&_t=${Date.now()}`
+                      `/study/session?mode=new&n=${n}${dirQuery}${diffPreserveQuery}&_t=${Date.now()}`
                     );
                   })
                 }
@@ -907,7 +967,7 @@ export function StudySessionClient() {
                 onClick={() =>
                   startNavTransition(() => {
                     router.push(
-                      `/study/session?mode=review&n=${n}${dirQuery}&_t=${Date.now()}`
+                      `/study/session?mode=review&n=${n}${dirQuery}${diffPreserveQuery}&_t=${Date.now()}`
                     );
                   })
                 }

@@ -11,6 +11,7 @@ import { Screen } from "@/components/app/screen";
 import { HelpHint, HelpSection } from "@/components/app/help-hint";
 import { cn, focusRingLink } from "@/lib/utils";
 import { getPreferences, setPreferences, type AppPreferences } from "@/lib/preferences";
+import { difficultyLabel, type WordDifficulty } from "@/lib/word-meta";
 import { COLOR_PRESETS } from "@/lib/color-presets";
 import { exportBackup, importBackup } from "@/lib/backup";
 import { toast } from "sonner";
@@ -47,6 +48,21 @@ export default function SettingsPage() {
     const next = await setPreferences(patch);
     setPrefs(next);
   }
+
+  const toggleDifficultyLevel = useCallback(
+    (level: WordDifficulty, checked: boolean) => {
+      const cur = prefs?.difficultyLevels ?? ([1, 2, 3] as WordDifficulty[]);
+      if (!checked && cur.length <= 1) {
+        toast.message("少なくとも1段階は選んでください");
+        return;
+      }
+      const next: WordDifficulty[] = checked
+        ? ([...new Set([...cur, level])] as WordDifficulty[]).sort((a, b) => a - b)
+        : cur.filter((l) => l !== level);
+      void updatePrefs({ difficultyLevels: next });
+    },
+    [prefs?.difficultyLevels]
+  );
 
   const handleExport = useCallback(async () => {
     try {
@@ -255,6 +271,11 @@ export default function SettingsPage() {
                   4択が表示されたタイミングで、英単語を1回だけ読み上げます（既定はオフ）。公共の場や長時間の学習では音量にご注意ください。
                 </p>
               </HelpSection>
+              <HelpSection title="出題する難易度">
+                <p>
+                  新規・ミックス・復習の各モードで、選んだレベルに合う単語だけが出題候補になります。データに明示がない語は、語の長さや品詞からおおまかにレベルを付けています。
+                </p>
+              </HelpSection>
             </HelpHint>
           </div>
         </CardHeader>
@@ -269,6 +290,26 @@ export default function SettingsPage() {
               disabled={prefs == null}
               onCheckedChange={(checked) => void updatePrefs({ compactSchedule: Boolean(checked) })}
             />
+          </div>
+          <Separator />
+          <div className="space-y-3">
+            <p className="text-sm font-medium leading-snug">出題する難易度</p>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              レベルは複数選べます。未登録の語は語長・品詞から推定します。
+            </p>
+            {([1, 2, 3] as const).map((level) => (
+              <div key={level} className="flex items-center justify-between gap-3">
+                <span className="min-w-0 flex-1 text-sm font-medium leading-snug">
+                  {difficultyLabel(level)}
+                </span>
+                <Switch
+                  className="shrink-0"
+                  checked={prefs?.difficultyLevels?.includes(level) ?? true}
+                  disabled={prefs == null}
+                  onCheckedChange={(checked) => toggleDifficultyLevel(level, Boolean(checked))}
+                />
+              </div>
+            ))}
           </div>
           <Separator />
           <div className="flex items-center justify-between gap-3">

@@ -56,3 +56,16 @@ export function difficultyLabel(d: WordDifficulty): string {
   if (d === 2) return "ふつう";
   return "むずかしい";
 }
+
+/** 指定レベルに含まれる単語だけに絞る（levels が 3 段階すべてならコピーせずそのまま返す） */
+export function filterWordsByDifficulty(
+  words: ToeicWord[],
+  levels: readonly WordDifficulty[]
+): ToeicWord[] {
+  const set = new Set(levels);
+  if (set.size === 0) return [];
+  if (set.size === 3 && set.has(1) && set.has(2) && set.has(3)) {
+    return words;
+  }
+  return words.filter((w) => set.has(getWordDifficulty(w)));
+}
